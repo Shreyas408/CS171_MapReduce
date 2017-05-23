@@ -36,7 +36,7 @@ public class CLI{
 		private ServerSocket serverSocket;
 
 		public ServerThread() throws IOException{
-			serverSocket = new serverSocket(PORT);
+			serverSocket = new ServerSocket(PORT);
 			serverSocket.setSoTimeout(15000);
 		}
 
@@ -117,7 +117,7 @@ public class CLI{
 				try{
 					OutputStream outToServer = prmClient.getOutputStream();
 					DataOutputStream out = new DataOutputStream(outToServer);
-					out.writeUTF("Replicate");
+					out.writeUTF(line);
 				}catch(Exception e){
 					e.printStackTrace();
 				}

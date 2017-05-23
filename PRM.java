@@ -11,11 +11,11 @@ public class PRM{
 		int id; 
 		Tuple BallotNum;
 		Tuple AcceptNum;
-		String fileName; 
+		LogObject logobject; 
 	}	
 	class LogObject{
 		String fileName;
-		HashMap<String, Integer> wordCount;
+		HashMap<String, Integer> wordDict;
 	}
 	class ServerThread extends Thread{
 		private ServerSocket serverSocket;
@@ -24,6 +24,23 @@ public class PRM{
 			serverSocket = new ServerSocket(PRM_PORT);
 			serverSocket.setSoTimeout(15000);
 		}
+
+	    public LogObject createLogObject(String filename) {
+		System.out.println("create logobject function");
+		File file = new File(filename);
+		LogObject myobject = new LogObject();
+		myobject.fileName = filename;
+
+		return myobject;
+	    }
+	    
+	    public void processRequest(String request) {
+		String[] splitreq = request.trim().split("\\s+");
+
+		if(splitreq[0] == "replicate") {
+		    createLogObject(splitreq[1]);
+		}
+	    }
 
 		@Override
 		public void run(){
@@ -35,9 +52,11 @@ public class PRM{
             		System.out.println("Just connected to " + server.getRemoteSocketAddress());
            			while(true){
            				DataInputStream in = new DataInputStream(server.getInputStream());
-            
-            			System.out.println(in.readUTF());
-            		}
+
+					String request = in.readUTF();
+					System.out.println("Received request: " + request);
+					processRequest(request);
+				}
             		//DataOutputStream out = new DataOutputStream(server.getOutputStream());
             		//out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
                		   //+ "\nGoodbye!");
