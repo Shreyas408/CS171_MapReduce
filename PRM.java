@@ -2,7 +2,11 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
+
 public class PRM{
+
+	public static int  PRM_PORT = 5001;
+	
 	class Request{
 		int id; 
 		Tuple BallotNum;
@@ -11,13 +15,13 @@ public class PRM{
 	}	
 	class LogObject{
 		String fileName;
-		HashMap<String, int> wordCount;
+		HashMap<String, Integer> wordCount;
 	}
 	class ServerThread extends Thread{
 		private ServerSocket serverSocket;
 
-		public ServerThread(int port) throws IOException{
-			serverSocket = new ServerSocket(port);
+		public ServerThread() throws IOException{
+			serverSocket = new ServerSocket(PRM_PORT);
 			serverSocket.setSoTimeout(10000);
 		}
 
@@ -28,6 +32,16 @@ public class PRM{
 					System.out.println("Waiting for client on port " + 
                			serverSocket.getLocalPort() + "...");
             		Socket server = serverSocket.accept();
+            		System.out.println("Just connected to " + server.getRemoteSocketAddress());
+           			while(true){
+           				DataInputStream in = new DataInputStream(server.getInputStream());
+            
+            			System.out.println(in.readUTF());
+            		}
+            		//DataOutputStream out = new DataOutputStream(server.getOutputStream());
+            		//out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
+               		   //+ "\nGoodbye!");
+            		//server.close();
 				}
 				catch (SocketTimeoutException s){
 					System.out.println("Socket timed out!");
@@ -44,7 +58,7 @@ public class PRM{
 
 
 	int PORT = 5001;
-	String IP = 127.0.0.1; 
+	String IP = "127.0.0.1"; 
 
 	int[] PRM_PortList;
 	String[] PRM_IPList;
@@ -63,9 +77,20 @@ public class PRM{
 		this.procID = procID;
 	}
 
-	public static void main(String[] args){
-		
+	public void setUpServer(){
+		try{
+			Thread t = new ServerThread();
+			t.start();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 	}
 
+	public static void main(String[] args){
+		PRM p = new PRM(1, 1, "", null, null);	
+		p.setUpServer();
+	}
 }
+
+
 

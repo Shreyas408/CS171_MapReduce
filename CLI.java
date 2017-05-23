@@ -5,16 +5,16 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public class CLI{
-	private static final Pattern map        = Pattern.compile("map \\S+");
-	private static final Pattern reduce     = Pattern.compile("reduce \\S+ \\S+[ \\S+]+");
-	private static final Pattern replicate  = Pattern.compile("replicate \\S+");
-	private static final Pattern stop       = Pattern.compile("stop");
-	private static final Pattern resume     = Pattern.compile("resume"); 
-	private static final Pattern total      = Pattern.compile("total \\S+ \\S+[ \\S+]+");
-	private static final Pattern print      = Pattern.compile("print");
-	private static final Pattern merge      = Pattern.compile("merge \\S+ \\S+");
+	private static  Pattern map        = Pattern.compile("map \\S+");
+	private static  Pattern reduce     = Pattern.compile("reduce \\S+[ \\S+]+");
+	private static  Pattern replicate  = Pattern.compile("replicate \\S+");
+	private static  Pattern stop       = Pattern.compile("stop");
+	private static  Pattern resume     = Pattern.compile("resume"); 
+	private static  Pattern total      = Pattern.compile("total \\S+[ \\S+]+");
+	private static  Pattern print      = Pattern.compile("print");
+	private static  Pattern merge      = Pattern.compile("merge \\S+ \\S+");
 
-	private enum INPUT {
+	public enum INPUT {
 	    MAP, REDUCE, REPLICATE, STOP, RESUME, TOTAL, PRINT, MERGE, INVALID
 	}
 	
@@ -27,30 +27,38 @@ public class CLI{
 	int prmPort;
 	String prmIP;
 
+	Socket prmClient;
+
 	public CLI(int prmPort, String prmIP){
-		myPRM = p;
 	}
 
 	public void setupClient(){
-		String serverName = "PRM";
-      	int port = Integer.parseInt(args[1]);
+		String serverName = "127.0.0.1";
+      	int port = 5001;
       	try {
         	System.out.println("Connecting to " + serverName + " on port " + port);
-        	Socket client = new Socket(serverName, port);
+        	prmClient = new Socket(serverName, port);
          
-        	System.out.println("Just connected to " + client.getRemoteSocketAddress());
-        	OutputStream outToServer = client.getOutputStream();
+        	System.out.println("Just connected to " + prmClient.getRemoteSocketAddress());
+        	OutputStream outToServer = prmClient.getOutputStream();
         	DataOutputStream out = new DataOutputStream(outToServer);
          
-        	out.writeUTF("Hello from " + client.getLocalSocketAddress());
-        	InputStream inFromServer = client.getInputStream();
+        	out.writeUTF("Hello from " + prmClient.getLocalSocketAddress());
+        	InputStream inFromServer = prmClient.getInputStream();
         	DataInputStream in = new DataInputStream(inFromServer);
          
-         	System.out.println("Server says " + in.readUTF());
-         	client.close();
+         	//System.out.println("Server says " + in.readUTF());
       	}catch(IOException e) {
          	e.printStackTrace();
       	}
+	}
+
+	public void closeClient(){
+		try{
+			prmClient.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 	}
 
 	public void readInput(){
@@ -58,93 +66,80 @@ public class CLI{
 		String line = in.nextLine();
 
 	
-		switch getCmd(line){
+		switch (getCmd(line)){
 			case MAP:
+				System.out.println("Map");
 				break;
 			case REDUCE:
+				System.out.println("Reduce");
 				break;
 			case REPLICATE:
+				System.out.println("Replicate");
+				// Send message to PRM
+				try{
+					OutputStream outToServer = prmClient.getOutputStream();
+					DataOutputStream out = new DataOutputStream(outToServer);
+					out.writeUTF("Replicate");
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 				break;
 			case STOP:
+				System.out.println("Stop");
 				break;
 			case RESUME:
+				System.out.println("Resume");
 				break;
 			case TOTAL:
+				System.out.println("Total");
 				break;
 			case PRINT:
+				System.out.println("Print");
 				break;
 			case MERGE:
+				System.out.println("Marge");
 				break;
-			case INVALID:
+			default:
+				System.out.println("Invalid Input");
 				break;
 		}
-
-		// // map filename
-		// Pattern mapPattern = Pattern.compile("map \\S+");
-		// Matcher mapMatcher = mapPattern.matcher(line);
-		// //if(mapMatcher.matches()){
-		// 	//System.out.println("MAp Matches");
-		// //}
-
-		// // reduce filename1 filename2 filename3...
-		// Pattern reducePattern = Pattern.compile("reduce \\S+ \\S+[ \\S+]+");
-		// Matcher reduceMatcher = reducePattern.matcher(line);
-		// //if(reduceMatcher.matches())
-		// 	//System.out.println("Matches!");
-
-		// // replicate filename
-		// Pattern replicatePattern = Pattern.compile("replicate \\S+");
-		// Matcher replicateMatcher = replicatePattern.matcher(line);
-
-		// // stop
-
-		// // resume
-		
-		// // total pos1 pos2 ...
-		// Pattern totalPattern = Pattern.compile("total \\S+ \\S+[ \\S+]+");
-		// Matcher totalMatcher = totalPattern.matcher(line);
-
-		// // print 
-		
-		// // merge pos1 pos2
-		// Pattern mergePattern = Pattern.compile("merge \\S+ \\S+");
-		// Matcher mergeMatcher = mergePattern.matcher(line);
-
-		// //Map m = new Map();
-		// //m.run();
 		
 	}
 
 	private INPUT getCmd(String str){
 		if(map.matcher(str).matches()){
-			return MAP;
+			return INPUT.MAP;
 		}
-		else if(reudce.matcher(str).matches()){
-			return REDUCE;
+		else if(reduce.matcher(str).matches()){
+			return INPUT.REDUCE;
 		}
 		else if(replicate.matcher(str).matches()){
-			return REPLICATE;
+			return INPUT.REPLICATE;
 		}
 		else if(stop.matcher(str).matches()){
-			return STOP;
+			return INPUT.STOP;
 		}
 		else if(resume.matcher(str).matches()){
-			return RESUME;
+			return INPUT.RESUME;
 		}
 		else if(total.matcher(str).matches()){
-			return TOTAL;
+			return INPUT.TOTAL;
 		}
 		else if(print.matcher(str).matches()){
-			return PRINT;
+			return INPUT.PRINT;
 		}
 		else if(merge.matcher(str).matches()){
-			return MERGE;
+			return INPUT.MERGE;
 		}
 		else{
-			return INVALID;
+			return INPUT.INVALID;
 		}
 	}
+
 	public static void main(String[] args){
-		
+		CLI c = new CLI(1, "");
+		c.setupClient();
+		while(true)
+			c.readInput();
 	}
 }
