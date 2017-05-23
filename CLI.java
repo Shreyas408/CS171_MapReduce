@@ -29,7 +29,45 @@ public class CLI{
 
 	Socket prmClient;
 
-	public CLI(int prmPort, String prmIP){
+	//public CLI(int prmPort, String prmIP){
+	//}
+
+	class ServerThread extends Thread{
+		private ServerSocket serverSocket;
+
+		public ServerThread() throws IOException{
+			serverSocket = new serverSocket(PORT);
+			serverSocket.setSoTimeout(15000);
+		}
+
+		@Override
+		public void run(){
+			while(true){
+				try{
+					System.out.println("Waiting for client on port " + 
+               			serverSocket.getLocalPort() + "...");
+            		Socket server = serverSocket.accept();
+            		System.out.println("Just connected to " + server.getRemoteSocketAddress());
+           			while(true){
+           				DataInputStream in = new DataInputStream(server.getInputStream());
+            
+            			System.out.println(in.readUTF());
+            		}
+            		//DataOutputStream out = new DataOutputStream(server.getOutputStream());
+            		//out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
+               		   //+ "\nGoodbye!");
+            		//server.close();
+				}
+				catch (SocketTimeoutException s){
+					System.out.println("Socket timed out!");
+					break;
+				}
+				catch (IOException e){
+					e.printStackTrace();
+					break;
+				}
+			}
+		}
 	}
 
 	public void setupClient(){
@@ -137,7 +175,7 @@ public class CLI{
 	}
 
 	public static void main(String[] args){
-		CLI c = new CLI(1, "");
+		CLI c = new CLI();
 		c.setupClient();
 		while(true)
 			c.readInput();

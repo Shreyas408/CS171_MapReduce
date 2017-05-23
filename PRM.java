@@ -22,7 +22,7 @@ public class PRM{
 
 		public ServerThread() throws IOException{
 			serverSocket = new ServerSocket(PRM_PORT);
-			serverSocket.setSoTimeout(10000);
+			serverSocket.setSoTimeout(15000);
 		}
 
 		@Override
