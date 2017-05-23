@@ -8,4 +8,7 @@ public class MapReduce{
 		CLI c = new CLI();
 		c.readInput();
 	}
+	public static void main(String[] args){
+		
+	}
 }

@@ -21,6 +21,38 @@ public class CLI{
 	private Map m1;
 	private Map m2;
 
+	int PORT = 5000;
+	String IP = "127.0.0.1";
+
+	int prmPort;
+	String prmIP;
+
+	public CLI(int prmPort, String prmIP){
+		myPRM = p;
+	}
+
+	public void setupClient(){
+		String serverName = "PRM";
+      	int port = Integer.parseInt(args[1]);
+      	try {
+        	System.out.println("Connecting to " + serverName + " on port " + port);
+        	Socket client = new Socket(serverName, port);
+         
+        	System.out.println("Just connected to " + client.getRemoteSocketAddress());
+        	OutputStream outToServer = client.getOutputStream();
+        	DataOutputStream out = new DataOutputStream(outToServer);
+         
+        	out.writeUTF("Hello from " + client.getLocalSocketAddress());
+        	InputStream inFromServer = client.getInputStream();
+        	DataInputStream in = new DataInputStream(inFromServer);
+         
+         	System.out.println("Server says " + in.readUTF());
+         	client.close();
+      	}catch(IOException e) {
+         	e.printStackTrace();
+      	}
+	}
+
 	public void readInput(){
 		Scanner in = new Scanner(System.in);
 		String line = in.nextLine();
@@ -111,5 +143,8 @@ public class CLI{
 		else{
 			return INVALID;
 		}
+	}
+	public static void main(String[] args){
+		
 	}
 }

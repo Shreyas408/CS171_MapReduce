@@ -11,20 +11,61 @@ public class PRM{
 	}	
 	class LogObject{
 		String fileName;
-		HashMap<>
+		HashMap<String, int> wordCount;
 	}
-	int PORT;
-	String IP; 
-	int[] PORTLIST;
-	String[] IPLIST; 
+	class ServerThread extends Thread{
+		private ServerSocket serverSocket;
 
-	int reqNum;
-	int procID
+		public ServerThread(int port) throws IOException{
+			serverSocket = new ServerSocket(port);
+			serverSocket.setSoTimeout(10000);
+		}
 
-	public PRM(int port, int[] ports, String[] ips){
-		PORTLIST = ports;
-		IPLIST = ips;
-		PORT = port;
+		@Override
+		public void run(){
+			while(true){
+				try{
+					System.out.println("Waiting for client on port " + 
+               			serverSocket.getLocalPort() + "...");
+            		Socket server = serverSocket.accept();
+				}
+				catch (SocketTimeoutException s){
+					System.out.println("Socket timed out!");
+					break;
+				}
+				catch (IOException e){
+					e.printStackTrace();
+					break;
+				}
+			}
+		}
+	}
+
+
+
+	int PORT = 5001;
+	String IP = 127.0.0.1; 
+
+	int[] PRM_PortList;
+	String[] PRM_IPList;
+	int CLI_Port;
+	String CLI_IP; 
+	ArrayList<LogObject> log; 
+
+	int reqNum = 0;
+	int procID;
+
+	public PRM(int procID, int CLI_Port, String CLI_IP, int[] PRM_PortList, String[] PRM_IPList){
+		this.CLI_Port = CLI_Port;
+		this.CLI_IP = CLI_IP;
+		this.PRM_PortList = PRM_PortList;
+		this.PRM_IPList = PRM_IPList; 
+		this.procID = procID;
+	}
+
+	public static void main(String[] args){
+		
 	}
 
 }
+
