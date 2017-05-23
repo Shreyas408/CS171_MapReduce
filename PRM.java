@@ -15,7 +15,7 @@ public class PRM{
 	}	
 	class LogObject{
 		String fileName;
-		HashMap<String, Integer> wordDict;
+		HashMap<String, Integer> wordDict = new HashMap<String, Integer>();
 	}
 	class ServerThread extends Thread{
 		private ServerSocket serverSocket;
@@ -26,20 +26,42 @@ public class PRM{
 		}
 
 	    public LogObject createLogObject(String filename) {
-		System.out.println("create logobject function");
-		File file = new File(filename);
-		LogObject myobject = new LogObject();
-		myobject.fileName = filename;
+			System.out.println("create logobject function");
+			File file = new File(filename);
+			Scanner in = null;
+			try{
+				in = new Scanner(file);
+			}catch(FileNotFoundException f){
+				System.out.println("File Not Found");
+			}
 
-		return myobject;
+			LogObject myLogObject = new LogObject();
+			myLogObject.fileName = filename;
+
+			while(in.hasNext()){
+				String str = in.next();
+				str = str.substring(1,str.length()-1);
+				String[] arr = str.split(",");
+				myLogObject.wordDict.put(arr[0], Integer.parseInt(arr[1]));
+			}
+
+			return myLogObject;
 	    }
 	    
 	    public void processRequest(String request) {
-		String[] splitreq = request.trim().split("\\s+");
+			String[] splitreq = request.trim().split("\\s+");
+			System.out.println("File Name: " +splitreq[1]);
 
-		if(splitreq[0] == "replicate") {
-		    createLogObject(splitreq[1]);
-		}
+			if(splitreq[0].equals("replicate")) {
+
+		    	LogObject logObject= createLogObject(splitreq[1]);
+		    	System.out.println("FileName: " + logObject.fileName);
+		    	
+		    	for (HashMap.Entry entry : logObject.wordDict.entrySet()) {
+    				System.out.println(entry.getKey() + ", " + entry.getValue());
+				}
+
+			}
 	    }
 
 		@Override
