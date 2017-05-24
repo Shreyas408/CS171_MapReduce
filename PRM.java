@@ -6,13 +6,29 @@ import java.util.*;
 public class PRM{
 
 	public static int  PRM_PORT = 5001;
-	
+
+    public static int procID;
+    public int ballotCounter;
+    public int acceptCounter;
+    
 	class Request{
 		int id; 
 		Tuple BallotNum;
 		Tuple AcceptNum;
 		LogObject logobject; 
-	}	
+
+	    public Request(int ballotCount, int acceptProcID, int acceptCounter , LogObject logobj) {
+		id = procID;
+		BallotNum = new Tuple(id, ballotCount);
+		AcceptNum = new Tuple(acceptProcID, acceptCounter);
+		logobject = logobj;
+	    }
+	    /*
+	    public Request createPaxosRequest(LogObject logobj) {
+		Request newReq = new Request(ballotCounter, procID, acceptCounter, logobj);
+		return newReq;
+		}*/
+	}
 	class LogObject{
 		String fileName;
 		HashMap<String, Integer> wordDict = new HashMap<String, Integer>();
@@ -51,28 +67,35 @@ public class PRM{
 			return myLogObject;
 	    }
 	    
-	    public void processRequest(String request) {
-			String[] splitreq = request.trim().split("\\s+");
-			System.out.println("File Name: " +splitreq[1]);
+	    public void processCLIRequest(String request) {
+		//split on whitespace into array splitreq
+		String[] splitreq = request.trim().split("\\s+");
 			//Prepare for paxos
 			//CLI: replicate, stop, resume, total, print, merge
 			if(splitreq[0].equals("replicate")) {
-
+			    
 		    	LogObject logObject= createLogObject(splitreq[1]);
-		    	System.out.println("FileName: " + logObject.fileName);
+
+			//testing proper creation
+			/*
+			System.out.println("FileName: " + logObject.fileName);
 		    	
 		    	for (HashMap.Entry entry : logObject.wordDict.entrySet()) {
     				System.out.println(entry.getKey() + ", " + entry.getValue());
 				}
 
+				}*/
+
+			//send paxos prepare
+			Request newRequest = new Request(ballotCounter, procID, acceptCounter, logObject);
+			//newRequest.createPaxosRequest(logObject);
 			}
+			
+	    }
 
-
-
-			//PRM - PRM communication
-			if(splitreq[0].equals("prepare")) {
-
-			}
+	    public void processPaxosRequest(String request) {
+		//TODO:
+		return;
 	    }
 
 		@Override
@@ -101,18 +124,23 @@ public class PRM{
            				if(in.available() > 0)
 							 request = in.readUTF();
 						
-						System.out.println("Received request: " + request);
-						processRequest(request);
+					//System.out.println("Received request: " + request);
+					if(!request.equals("")) {
+						processCLIRequest(request);
+					}
 
 						for(int i = 0; i < incomingSockets.length; i++){
 							in = new DataInputStream(incomingSockets[i].getInputStream());
-							String str = "";
+							request = "";
 							if(in.available() > 0)
-								str = in.readUTF();
-							System.out.println(str);
+								request = in.readUTF();
+							System.out.println(request);
+							if(!request.equals("")) {
+								processPaxosRequest(request);
 						}
 						break;
 					}
+				}
             		//DataOutputStream out = new DataOutputStream(server.getOutputStream());
             		//out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
                		   //+ "\nGoodbye!");
@@ -143,7 +171,6 @@ public class PRM{
 	Socket[] prmSockets;
 
 	int reqNum = 0;
-	int procID;
 
 	public PRM(int procID, int CLI_Port, String CLI_IP, int[] PRM_PortList, String[] PRM_IPList){
 		this.CLI_Port = CLI_Port;
@@ -187,7 +214,9 @@ public class PRM{
 	}
 
 	public static void main(String[] args){
-		String configFile = args[0]; 
+	    procID = Integer.parseInt(args[0]); 
+	    String configFile = args[1];
+		
 		Scanner in = null;
 		try{
 			in = new Scanner(new File(configFile));
