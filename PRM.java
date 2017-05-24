@@ -18,10 +18,10 @@ public class PRM{
 		LogObject logobject; 
 
 	    public Request(int ballotCount, int acceptProcID, int acceptCounter , LogObject logobj) {
-		id = procID;
-		BallotNum = new Tuple(id, ballotCount);
-		AcceptNum = new Tuple(acceptProcID, acceptCounter);
-		logobject = logobj;
+			id = procID;
+			BallotNum = new Tuple(id, ballotCount);
+			AcceptNum = new Tuple(acceptProcID, acceptCounter);
+			logobject = logobj;
 	    }
 	    /*
 	    public Request createPaxosRequest(LogObject logobj) {
@@ -68,8 +68,8 @@ public class PRM{
 	    }
 	    
 	    public void processCLIRequest(String request) {
-		//split on whitespace into array splitreq
-		String[] splitreq = request.trim().split("\\s+");
+			//split on whitespace into array splitreq
+			String[] splitreq = request.trim().split("\\s+");
 			//Prepare for paxos
 			//CLI: replicate, stop, resume, total, print, merge
 			if(splitreq[0].equals("replicate")) {
@@ -87,7 +87,7 @@ public class PRM{
 				}*/
 
 			//send paxos prepare
-			Request newRequest = new Request(ballotCounter, procID, acceptCounter, logObject);
+				Request newRequest = new Request(ballotCounter, procID, acceptCounter, logObject);
 			//newRequest.createPaxosRequest(logObject);
 			}
 			
@@ -95,7 +95,8 @@ public class PRM{
 
 	    public void processPaxosRequest(String request) {
 		//TODO:
-		return;
+	    	System.out.println(request);
+			return;
 	    }
 
 		@Override
@@ -120,22 +121,22 @@ public class PRM{
            			while(true){
            				DataInputStream in = new DataInputStream(cliServer.getInputStream());
 
-           				String request = "";
+           				String request = "1";
            				if(in.available() > 0)
 							 request = in.readUTF();
 						
-					//System.out.println("Received request: " + request);
-					if(!request.equals("")) {
-						processCLIRequest(request);
-					}
+						//System.out.println("Received request: " + request);
+						if(!request.equals("1")) {
+							processCLIRequest(request);
+						}
 
 						for(int i = 0; i < incomingSockets.length; i++){
 							in = new DataInputStream(incomingSockets[i].getInputStream());
-							request = "";
+							request = "2";
 							if(in.available() > 0)
 								request = in.readUTF();
-							System.out.println(request);
-							if(!request.equals("")) {
+							//System.out.println(request);
+							if(!request.equals("2")) {
 								processPaxosRequest(request);
 						}
 						break;
