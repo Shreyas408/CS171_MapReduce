@@ -146,7 +146,7 @@ public class PRM{
 							//in = new DataInputStream(incomingSockets[i].getInputStream());
 							ObjectInputStream objectIn = new ObjectInputStream(incomingSockets[i].getInputStream());
 							//request = "2";
-							if(in.available() > 0){
+							if(objectIn.available() > 0){
 								try{
 									Object o = objectIn.readObject();
 									Request r = null;
@@ -161,6 +161,7 @@ public class PRM{
 							//if(!request.equals("2")) {
 								//processPaxosRequest(request);
 						}
+						//System.out.println("I'm in the while loop");
 						//break;
 					}
 				}
