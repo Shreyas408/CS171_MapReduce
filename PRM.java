@@ -87,7 +87,16 @@ public class PRM{
 				}*/
 
 			//send paxos prepare
-				Request newRequest = new Request(ballotCounter, procID, acceptCounter, logObject);
+				for(int i = 0; i < prmSockets.length; i++){
+					try{
+						Request newRequest = new Request(ballotCounter, procID, acceptCounter, logObject);
+						ObjectOutputStream oos = new ObjectOutputStream(prmSockets[i].getOutputStream());
+						oos.writeObject(newRequest); 
+					}catch(IOException e){
+						e.printStackTrace();
+						break;
+					}
+				}
 			//newRequest.createPaxosRequest(logObject);
 			}
 			
@@ -131,13 +140,23 @@ public class PRM{
 						}
 
 						for(int i = 0; i < incomingSockets.length; i++){
-							in = new DataInputStream(incomingSockets[i].getInputStream());
-							request = "2";
-							if(in.available() > 0)
-								request = in.readUTF();
+							//in = new DataInputStream(incomingSockets[i].getInputStream());
+							ObjectInputStream objectIn = new ObjectInputStream(incomingSockets[i].getInputStream());
+							//request = "2";
+							if(in.available() > 0){
+								try{
+									Object o = objectIn.readObject();
+									Request r = null;
+									if(o instanceof Request){
+										r = (Request)o;
+										System.out.println("Received r");
+									}
+								}catch(ClassNotFoundException c){}
+							}
+								//request = in.readUTF();
 							//System.out.println(request);
-							if(!request.equals("2")) {
-								processPaxosRequest(request);
+							//if(!request.equals("2")) {
+								//processPaxosRequest(request);
 						}
 						break;
 					}
@@ -146,7 +165,6 @@ public class PRM{
             		//out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
                		   //+ "\nGoodbye!");
             		//server.close();
-				}
 				catch (SocketTimeoutException s){
 					System.out.println("Socket timed out!");
 					break;
@@ -204,6 +222,7 @@ public class PRM{
 			System.out.println("Connecting to " + serverName + " on port " + port);
 			try{
 				prmSockets[i] = new Socket(serverName, port);
+
 			}catch (UnknownHostException h){
 				System.out.println("UnknownHostException");
 				break;
