@@ -85,13 +85,14 @@ public class PRM{
 				}
 
 				}*/
+				Request newRequest = new Request(ballotCounter, procID, acceptCounter, logObject);
 
 			//send paxos prepare
 				for(int i = 0; i < prmSockets.length; i++){
 					try{
-						Request newRequest = new Request(ballotCounter, procID, acceptCounter, logObject);
 						ObjectOutputStream oos = new ObjectOutputStream(prmSockets[i].getOutputStream());
 						oos.writeObject(newRequest); 
+						System.out.println("Delivering Prepare Request");
 					}catch(IOException e){
 						e.printStackTrace();
 						break;
@@ -122,9 +123,11 @@ public class PRM{
            			
 
             		//accepting all nodes' PRM  
+            		System.out.println(PRM_IPList.length + " is the length");
             		for(int i = 0; i < PRM_IPList.length; i++) {
             			incomingSockets[i] = serverSocket.accept();
-            			incomingSockets[i].setSoTimeout(15000);
+            			System.out.println("incomingSockets[" + i + "] accepted");
+            			//incomingSockets[i].setSoTimeout(15000);
             		}
 
            			while(true){
@@ -158,7 +161,7 @@ public class PRM{
 							//if(!request.equals("2")) {
 								//processPaxosRequest(request);
 						}
-						break;
+						//break;
 					}
 				}
             		//DataOutputStream out = new DataOutputStream(server.getOutputStream());
