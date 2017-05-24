@@ -17,10 +17,13 @@ public class PRM{
 		String fileName;
 		HashMap<String, Integer> wordDict = new HashMap<String, Integer>();
 	}
-	class ServerThread extends Thread{
+	class ListeningThread extends Thread{
+
 		private ServerSocket serverSocket;
 
-		public ServerThread() throws IOException{
+		private Socket[] incomingSockets;
+
+		public ListeningThread() throws IOException{
 			serverSocket = new ServerSocket(PRM_PORT);
 			serverSocket.setSoTimeout(15000);
 		}
@@ -51,7 +54,8 @@ public class PRM{
 	    public void processRequest(String request) {
 			String[] splitreq = request.trim().split("\\s+");
 			System.out.println("File Name: " +splitreq[1]);
-
+			//Prepare for paxos
+			//CLI: replicate, stop, resume, total, print, merge
 			if(splitreq[0].equals("replicate")) {
 
 		    	LogObject logObject= createLogObject(splitreq[1]);
@@ -62,23 +66,53 @@ public class PRM{
 				}
 
 			}
+
+
+
+			//PRM - PRM communication
+			if(splitreq[0].equals("prepare")) {
+
+			}
 	    }
 
 		@Override
 		public void run(){
+			incomingSockets = new Socket[PRM_IPList.length];
 			while(true){
 				try{
-					System.out.println("Waiting for client on port " + 
+					//accepting the CLI
+					System.out.println("Waiting for CLI on port " + 
                			serverSocket.getLocalPort() + "...");
-            		Socket server = serverSocket.accept();
-            		System.out.println("Just connected to " + server.getRemoteSocketAddress());
-           			while(true){
-           				DataInputStream in = new DataInputStream(server.getInputStream());
+            		Socket cliServer = serverSocket.accept();
+            		cliServer.setSoTimeout(15000);
+            		System.out.println("Just connected to " + cliServer.getRemoteSocketAddress());
+           			
 
-					String request = in.readUTF();
-					System.out.println("Received request: " + request);
-					processRequest(request);
-				}
+            		//accepting all nodes' PRM  
+            		for(int i = 0; i < PRM_IPList.length; i++) {
+            			incomingSockets[i] = serverSocket.accept();
+            			incomingSockets[i].setSoTimeout(15000);
+            		}
+
+           			while(true){
+           				DataInputStream in = new DataInputStream(cliServer.getInputStream());
+
+           				String request = "";
+           				if(in.available() > 0)
+							 request = in.readUTF();
+						
+						System.out.println("Received request: " + request);
+						processRequest(request);
+
+						for(int i = 0; i < incomingSockets.length; i++){
+							in = new DataInputStream(incomingSockets[i].getInputStream());
+							String str = "";
+							if(in.available() > 0)
+								str = in.readUTF();
+							System.out.println(str);
+						}
+						break;
+					}
             		//DataOutputStream out = new DataOutputStream(server.getOutputStream());
             		//out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
                		   //+ "\nGoodbye!");
@@ -106,6 +140,7 @@ public class PRM{
 	int CLI_Port;
 	String CLI_IP; 
 	ArrayList<LogObject> log; 
+	Socket[] prmSockets;
 
 	int reqNum = 0;
 	int procID;
@@ -120,16 +155,56 @@ public class PRM{
 
 	public void setUpServer(){
 		try{
-			Thread t = new ServerThread();
+			Thread t = new ListeningThread();
 			t.start();
 		}catch(IOException e){
 			e.printStackTrace();
 		}
 	}
 
+	public void setUpClient(){
+		prmSockets = new Socket[PRM_IPList.length];
+		try{
+    		Thread.sleep(3000);
+		}catch(InterruptedException i){
+			System.out.println("InterruptedException");
+		}
+    	System.out.println("I'm woke");
+    	for(int i = 0; i < PRM_IPList.length; i++){
+			String serverName = PRM_IPList[i];
+			int port = 5001;
+			System.out.println("Connecting to " + serverName + " on port " + port);
+			try{
+				prmSockets[i] = new Socket(serverName, port);
+			}catch (UnknownHostException h){
+				System.out.println("UnknownHostException");
+				break;
+			}catch(IOException e){
+				e.printStackTrace();
+				break;
+			}
+		} 
+	}
+
 	public static void main(String[] args){
-		PRM p = new PRM(1, 1, "", null, null);	
+		String configFile = args[0]; 
+		Scanner in = null;
+		try{
+			in = new Scanner(new File(configFile));
+		}catch(FileNotFoundException f){
+			System.out.println("ERR");
+		}
+		
+		int numPRMs = in.nextInt();
+		String[] prmIP = new String[numPRMs];
+		for(int i = 0; i < numPRMs; i++){
+			prmIP[i] = in.next();
+		}
+		PRM p = new PRM(1, 1, "", null, prmIP);	
 		p.setUpServer();
+
+		p.setUpClient();
+
 	}
 }
 
