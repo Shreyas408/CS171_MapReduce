@@ -325,6 +325,9 @@ public class PRM{
     		// 	incrementAccept(false);
     		// }
 
+    		System.out.println("Upon receiving Accept: " + ballotNum.toString());
+    		System.out.println("Wiht request ballon num: " + request.ballotNum.toString());
+
     		if(ballotNum.isLessThan(request.ballotNum)){
  
      			//check to make sure we're only sending the first time
@@ -342,7 +345,7 @@ public class PRM{
     		else if(ballotNum.isEqualTo(request.ballotNum)){
     			incrementAccept(false);
     		}
-    		
+
     		if(acceptCounter >= prmOutSockets.length) {
     			//decide on this log object
     			log.add(currentLogObject);
