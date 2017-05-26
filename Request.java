@@ -2,7 +2,7 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-class Request{
+class Request implements Serializable{
 	int id; 
 	Tuple BallotNum;
 	Tuple AcceptNum;
