@@ -30,6 +30,7 @@ public class PRM{
 		}*/
 		public String toString(){
 			String result = id + " " + BallotNum.toString() + " " + AcceptNum.toString();
+			return result;
 		}
 
 	}
@@ -122,7 +123,7 @@ public class PRM{
 					System.out.println("Waiting for CLI on port " + 
                			serverSocket.getLocalPort() + "...");
             		Socket cliServer = serverSocket.accept();
-            		cliServer.setSoTimeout(15000);
+            		//cliServer.setSoTimeout(15000);
             		System.out.println("Just connected to " + cliServer.getRemoteSocketAddress());
            			
 
@@ -134,6 +135,7 @@ public class PRM{
             			//incomingSockets[i].setSoTimeout(15000);
             		}
 
+            		Thread.sleep(5000);
            			while(true){
            				DataInputStream in = new DataInputStream(cliServer.getInputStream());
 
@@ -141,7 +143,7 @@ public class PRM{
            				if(in.available() > 0)
 							 request = in.readUTF();
 						
-						//System.out.println("Received request: " + request);
+						System.out.println("Received request: " + request);
 						if(!request.equals("1")) {
 							processCLIRequest(request);
 						}
@@ -184,6 +186,10 @@ public class PRM{
 					e.printStackTrace();
 					break;
 				}
+				catch (InterruptedException ie){
+					System.out.println("InterruptedException");
+					break;
+				}
 			}
 		}
 	}
@@ -222,6 +228,7 @@ public class PRM{
 
 	public void setUpClient(){
 		prmSockets = new Socket[PRM_IPList.length];
+		outStreams = new ObjectOutputStream[PRM_IPList.length];
 		try{
     		Thread.sleep(3000);
 		}catch(InterruptedException i){
@@ -234,8 +241,9 @@ public class PRM{
 			System.out.println("Connecting to " + serverName + " on port " + port);
 			try{
 				prmSockets[i] = new Socket(serverName, port);
+				System.out.println("Connected to prmSockets[" + i + "]");
 				outStreams[i] = new ObjectOutputStream(prmSockets[i].getOutputStream());
-
+				System.out.println("Connected to outStreams[" + i + "]");
 			}catch (UnknownHostException h){
 				System.out.println("UnknownHostException");
 				break;
