@@ -56,38 +56,6 @@ public class PRM{
 					if(!request.equals("1")) {
 						processCLIRequest(request);
 					}
-					// /////////////////////////////////////////////////
-					// /////////////////////////////////////////////////
-					// /////////////////////////////////////////////////
-					// /////////////////////////////////////////////////
-					// /////////////////////////////////////////////////
-					// for(int i = 0; i < incomingSockets.length; i++){
-					// 	//in = new DataInputStream(incomingSockets[i].getInputStream());
-					// 	//DataInputStream dataIn = new DataInputStream(incomingSockets[i].getInputStream());
-
-					// 	//request = "2";
-					// 	//System.out.println("objectIn.available(): " + inStreams[i].available());
-					// 	if(inStreams[i].available() > 0){
-					// 		try{
-					// 			System.out.println("reading object...");
-					// 			Object o = inStreams[i].readObject();
-					// 			System.out.println("object read?");
-					// 			Request r = null;
-					// 			if(o instanceof Request){
-					// 				r = (Request)o;
-					// 				System.out.println("Received r");
-					// 			}
-					// 		}catch(ClassNotFoundException c){
-					// 			System.out.println("ClassNotFoundException");
-					// 		}
-					// 	}
-					// 	//System.out.println("I'm in the LOOP");
-					// }
-					// /////////////////////////////////////////////////
-					// /////////////////////////////////////////////////
-					// /////////////////////////////////////////////////
-					// /////////////////////////////////////////////////
-					// /////////////////////////////////////////////////
 				}
 			}
 			catch (SocketTimeoutException s){
@@ -126,6 +94,8 @@ public class PRM{
 
 	Socket[] incomingSockets; //
 	ObjectInputStream[] inStreams;
+
+	//Queue<String> queue = new ConcurrentLinkedQueue<String>();
 
 	int reqNum = 0;
 
@@ -237,6 +207,8 @@ public class PRM{
 			t = new PRMListener(inStreams[i]);
 			t.start();
 		}
+
+		printIps();
 	}
 
 	public LogObject createLogObject(String filename) {
@@ -272,6 +244,7 @@ public class PRM{
 	    	LogObject logObject= createLogObject(splitreq[1]);
 
 			Request newRequest = new Request(procID, ballotCounter, procID, acceptCounter, logObject);
+			ballotCounter++;
 
 		//send paxos prepare
 			for(int i = 0; i < prmOutSockets.length; i++){
@@ -293,6 +266,13 @@ public class PRM{
 	//TODO:
     	System.out.println(request);
 		return;
+    }
+
+    public void printIps(){
+    	for(int i = 0; i < prmOutSockets.length; i++){
+    		System.out.println("prmOutSockets[" + i + "] = " + prmOutSockets[i].getInetAddress().toString());
+    		System.out.println("incomingSockets[" + i + "] = " + incomingSockets[i].getInetAddress().toString());
+    	}
     }
 
 	public static void main(String[] args){
@@ -317,6 +297,3 @@ public class PRM{
 
 	}
 }
-
-
-
