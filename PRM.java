@@ -12,73 +12,35 @@ public class PRM{
     public int ballotCounter;
     public int acceptCounter;
     
-	class ListeningThread extends Thread{
+    class PRMListener extends Thread{
+    	ObjectInputStream inStream;
 
-		private ServerSocket serverSocket;
+    	public PRMListener(ObjectInputStream ois){
+    		inStream = ois;
+    	}
 
-		//private Socket[] incomingSockets;
-
-		public ListeningThread() throws IOException{
-			//serverSocket = new ServerSocket(PRM_PORT);
-			//serverSocket.setSoTimeout(15000);
-		}
-
-	    public LogObject createLogObject(String filename) {
-			System.out.println("create logobject function");
-			File file = new File(filename);
-			Scanner in = null;
-			try{
-				in = new Scanner(file);
-			}catch(FileNotFoundException f){
-				System.out.println("File Not Found");
-			}
-
-			LogObject myLogObject = new LogObject();
-			myLogObject.fileName = filename;
-
-			while(in.hasNext()){
-				String str = in.next();
-				str = str.substring(1,str.length()-1);
-				String[] arr = str.split(",");
-				myLogObject.wordDict.put(arr[0], Integer.parseInt(arr[1]));
-			}
-
-			return myLogObject;
-	    }
-	    
-	    public void processCLIRequest(String request) {
-			//split on whitespace into array splitreq
-			String[] splitreq = request.trim().split("\\s+");
-			//Prepare for paxos
-			//CLI: replicate, stop, resume, total, print, merge
-			if(splitreq[0].equals("replicate")) {
-			    
-		    	LogObject logObject= createLogObject(splitreq[1]);
-
-				Request newRequest = new Request(procID, ballotCounter, procID, acceptCounter, logObject);
-
-			//send paxos prepare
-				for(int i = 0; i < prmOutSockets.length; i++){
-					try{
-						//ObjectOutputStream oos = new ObjectOutputStream(prmOutSockets[i].getOutputStream());
-						outStreams[i].writeObject(newRequest); 
-						System.out.println("Delivering Prepare Request");
-					}catch(IOException e){
-						e.printStackTrace();
-						break;
+    	@Override
+    	public void run(){
+    		while(true){
+	    		try{
+					System.out.println("reading object...");
+					Object o = inStream.readObject();
+					System.out.println("object read?");
+					Request r = null;
+					if(o instanceof Request){
+						r = (Request)o;
+						System.out.println("Received r");
 					}
+				}catch(ClassNotFoundException c){
+					System.out.println("ClassNotFoundException");
+				}catch(IOException e){
+					e.printStackTrace();
 				}
-			//newRequest.createPaxosRequest(logObject);
 			}
-			
-	    }
+    	}
+    }
 
-	    public void processPaxosRequest(String request) {
-		//TODO:
-	    	System.out.println(request);
-			return;
-	    }
-
+	class CLIListener extends Thread{
 		@Override
 		public void run(){
 			try{
@@ -94,29 +56,38 @@ public class PRM{
 					if(!request.equals("1")) {
 						processCLIRequest(request);
 					}
+					// /////////////////////////////////////////////////
+					// /////////////////////////////////////////////////
+					// /////////////////////////////////////////////////
+					// /////////////////////////////////////////////////
+					// /////////////////////////////////////////////////
+					// for(int i = 0; i < incomingSockets.length; i++){
+					// 	//in = new DataInputStream(incomingSockets[i].getInputStream());
+					// 	//DataInputStream dataIn = new DataInputStream(incomingSockets[i].getInputStream());
 
-					for(int i = 0; i < incomingSockets.length; i++){
-						//in = new DataInputStream(incomingSockets[i].getInputStream());
-						//DataInputStream dataIn = new DataInputStream(incomingSockets[i].getInputStream());
-
-						//request = "2";
-						//System.out.println("objectIn.available(): " + inStreams[i].available());
-						if(inStreams[i].available() > 0){
-							try{
-								System.out.println("reading object...");
-								Object o = inStreams[i].readObject();
-								System.out.println("object read?");
-								Request r = null;
-								if(o instanceof Request){
-									r = (Request)o;
-									System.out.println("Received r");
-								}
-							}catch(ClassNotFoundException c){
-								System.out.println("ClassNotFoundException");
-							}
-						}
-						//System.out.println("I'm in the LOOP");
-					}
+					// 	//request = "2";
+					// 	//System.out.println("objectIn.available(): " + inStreams[i].available());
+					// 	if(inStreams[i].available() > 0){
+					// 		try{
+					// 			System.out.println("reading object...");
+					// 			Object o = inStreams[i].readObject();
+					// 			System.out.println("object read?");
+					// 			Request r = null;
+					// 			if(o instanceof Request){
+					// 				r = (Request)o;
+					// 				System.out.println("Received r");
+					// 			}
+					// 		}catch(ClassNotFoundException c){
+					// 			System.out.println("ClassNotFoundException");
+					// 		}
+					// 	}
+					// 	//System.out.println("I'm in the LOOP");
+					// }
+					// /////////////////////////////////////////////////
+					// /////////////////////////////////////////////////
+					// /////////////////////////////////////////////////
+					// /////////////////////////////////////////////////
+					// /////////////////////////////////////////////////
 				}
 			}
 			catch (SocketTimeoutException s){
@@ -260,14 +231,69 @@ public class PRM{
 		setUpInputStream(); //ObjectInputStream objectIn = new ObjectInputStream(incomingSockets[i].getInputStream());
 
 
-		try{
-			t = new ListeningThread();
+		t = new CLIListener();
+		t.start();
+		for(int i = 0; i < inStreams.length; i++){
+			t = new PRMListener(inStreams[i]);
 			t.start();
 		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
 	}
+
+	public LogObject createLogObject(String filename) {
+		System.out.println("create logobject function");
+		File file = new File(filename);
+		Scanner in = null;
+		try{
+			in = new Scanner(file);
+		}catch(FileNotFoundException f){
+			System.out.println("File Not Found");
+		}
+
+		LogObject myLogObject = new LogObject();
+		myLogObject.fileName = filename;
+
+		while(in.hasNext()){
+			String str = in.next();
+			str = str.substring(1,str.length()-1);
+			String[] arr = str.split(",");
+			myLogObject.wordDict.put(arr[0], Integer.parseInt(arr[1]));
+		}
+
+		return myLogObject;
+    }
+    
+    public void processCLIRequest(String request) {
+		//split on whitespace into array splitreq
+		String[] splitreq = request.trim().split("\\s+");
+		//Prepare for paxos
+		//CLI: replicate, stop, resume, total, print, merge
+		if(splitreq[0].equals("replicate")) {
+		    
+	    	LogObject logObject= createLogObject(splitreq[1]);
+
+			Request newRequest = new Request(procID, ballotCounter, procID, acceptCounter, logObject);
+
+		//send paxos prepare
+			for(int i = 0; i < prmOutSockets.length; i++){
+				try{
+					//ObjectOutputStream oos = new ObjectOutputStream(prmOutSockets[i].getOutputStream());
+					outStreams[i].writeObject(newRequest); 
+					System.out.println("Delivering Prepare Request");
+				}catch(IOException e){
+					e.printStackTrace();
+					break;
+				}
+			}
+		//newRequest.createPaxosRequest(logObject);
+		}
+		
+    }
+
+    public void processPaxosRequest(String request) {
+	//TODO:
+    	System.out.println(request);
+		return;
+    }
 
 	public static void main(String[] args){
 	    procID = Integer.parseInt(args[0]); 
