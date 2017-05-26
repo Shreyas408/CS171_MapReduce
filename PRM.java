@@ -320,32 +320,33 @@ public class PRM{
     	}
     	else {
 
-    		if(acceptNum.isEqualTo(request.ballotNum)) {
-    			incrementAccept(false);
-    		}
-    		if(acceptCounter >= prmOutSockets.length) {
-    			//decide on this log object
-    			log.add(currentLogObject);
-    			return;
-    		}
 
-    		if(ballotNum.isLessThan(request.ballotNum) || 
-    			ballotNum.isEqualTo(request.ballotNum)) {
+    		// if(acceptNum.isLessThan(request.ballotNum)) {
+    		// 	incrementAccept(false);
+    		// }
+
+    		if(ballotNum.isLessThan(request.ballotNum)){
  
      			//check to make sure we're only sending the first time
-    			if(ballotNum.isLessThan(request.ballotNum)) {
-    				Request acceptReq = new Request("accept", request.ballotNum, null, request.logobject);
-    				for(int i = 0; i < prmOutSockets.length; i++) {
-    					outStreams[i].writeObject(acceptReq);
-    				}
-    				incrementAccept(true);
-    			}   			   	
+				Request acceptReq = new Request("accept", request.ballotNum, null, request.logobject);
+				for(int i = 0; i < prmOutSockets.length; i++) {
+					outStreams[i].writeObject(acceptReq);
+				}
+				incrementAccept(true); //original acceptor's accept 
     			   	
     			acceptNum = request.ballotNum;
     			ballotNum = request.ballotNum;
     			currentLogObject = request.logobject;
 
-
+    		}
+    		else if(ballotNum.isEqualTo(request.ballotNum)){
+    			incrementAccept(false);
+    		}
+    		
+    		if(acceptCounter >= prmOutSockets.length) {
+    			//decide on this log object
+    			log.add(currentLogObject);
+    			return;
     		}
     	}
 		return;
