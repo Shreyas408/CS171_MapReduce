@@ -10,7 +10,6 @@ public class PRM{
 
     public static int procID;
     public int ballotCounter;
-    public int acceptCounter;
     
     class PRMListener extends Thread{
     	ObjectInputStream inStream;
@@ -106,6 +105,8 @@ public class PRM{
 	LogObject currentLogObject = null;
 
 	ArrayList<LogObject> log = new ArrayList<LogObject>();
+
+	int acceptCounter = 0;
 
 
 	public PRM(int procID, int CLI_Port, String CLI_IP, int[] PRM_PortList, String[] PRM_IPList){
@@ -271,7 +272,7 @@ public class PRM{
 		}
 		else if(splitreq[0].equals("print")) {
 			for(int i = 0; i < log.size(); i++) {
-				System.out.println(log.fileName);
+				System.out.println(log.get(i).fileName);
 			}
 			System.out.println("Done printing");
 		}
@@ -311,14 +312,41 @@ public class PRM{
     					myVal = requestList.get(i).logobject;
     				}
     			}
-    			Request acceptReq = new Request("accept", ballotNum, acceptNum, myVal);
+    			Request acceptReq = new Request("accept", ballotNum, null, myVal);
     			for(int i = 0; i < prmOutSockets.length; i++) {
     				outStreams[i].writeObject(acceptReq);
     			}
     		}
     	}
     	else {
-    		//handling accept
+
+    		if(acceptNum.isEqualTo(request.ballotNum)) {
+    			incrementAccept(false);
+    		}
+    		if(acceptCounter >= prmOutSockets.length) {
+    			//decide on this log object
+    			log.add(currentLogObject);
+    			return;
+    		}
+
+    		if(ballotNum.isLessThan(request.ballotNum) || 
+    			ballotNum.isEqualTo(request.ballotNum)) {
+ 
+     			//check to make sure we're only sending the first time
+    			if(ballotNum.isLessThan(request.ballotNum)) {
+    				Request acceptReq = new Request("accept", request.ballotNum, null, request.logobject);
+    				for(int i = 0; i < prmOutSockets.length; i++) {
+    					outStreams[i].writeObject(acceptReq);
+    				}
+    				incrementAccept(true);
+    			}   			   	
+    			   	
+    			acceptNum = request.ballotNum;
+    			ballotNum = request.ballotNum;
+    			currentLogObject = request.logobject;
+
+
+    		}
     	}
 		return;
     }
@@ -326,6 +354,17 @@ public class PRM{
     public synchronized void incrementAck(Request request) {
     	ackCounter++;
     	requestList.add(request);
+    }
+
+    public synchronized void incrementAccept(boolean reset) {
+    	
+    	if(reset){
+    		acceptCounter = 1;
+    	}
+    	else{
+    		acceptCounter++;
+    	}
+
     }
 
     public void printIps(){

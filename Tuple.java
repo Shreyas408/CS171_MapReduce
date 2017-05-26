@@ -41,6 +41,12 @@ public class Tuple implements Serializable{
 
   }
 
+  public boolean isEqualTo(Tuple t2) {
+    if(x == t2.x && y == t2.y)
+      return true;
+    return false;
+  }
+
   public String toString(){
     return "<" + x + "," + y + ">";
   }
