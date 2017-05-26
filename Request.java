@@ -4,8 +4,8 @@ import java.util.*;
 
 class Request implements Serializable{
 	int id; 
-	//Tuple BallotNum;
-	//Tuple AcceptNum;
+	Tuple BallotNum;
+	Tuple AcceptNum;
 	LogObject logobject; 
 
     public Request(int procID, int ballotCount, int acceptProcID, int acceptCounter , LogObject logobj) {
