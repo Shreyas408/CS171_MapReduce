@@ -252,8 +252,8 @@ public class PRM{
 		if(splitreq[0].equals("replicate")) {
 		    
 	    	LogObject logObject= createLogObject(splitreq[1]);
-
-			Request newRequest = new Request(procID, ++ballotCounter, acceptNum, logObject);
+	    	ballotNum = new Tuple(procID, ++ballotCounter);
+			Request newRequest = new Request(procID, ballotCounter, acceptNum, logObject);
 
 		//send paxos prepare
 			for(int i = 0; i < prmOutSockets.length; i++){
@@ -332,6 +332,10 @@ public class PRM{
     		System.out.println("Wiht request ballon num: " + request.ballotNum.toString());
 
     		if(acceptNum.isLessThan(request.ballotNum)){
+
+    			acceptNum = request.ballotNum;
+    			ballotNum = request.ballotNum;
+    			currentLogObject = request.logobject;
  
      			//check to make sure we're only sending the first time
 				Request acceptReq = new Request("accept", request.ballotNum, null, request.logobject);
@@ -339,10 +343,6 @@ public class PRM{
 					outStreams[i].writeObject(acceptReq);
 				}
 				incrementAccept(true); //original acceptor's accept 
-    			   	
-    			acceptNum = request.ballotNum;
-    			ballotNum = request.ballotNum;
-    			currentLogObject = request.logobject;
 
     		}
     		else if(acceptNum.isEqualTo(request.ballotNum)){
