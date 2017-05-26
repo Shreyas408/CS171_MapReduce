@@ -1,3 +1,5 @@
+import java.io.*;
+
 public class Tuple implements Serializable{ 
   public int x; 
   	public int y; 

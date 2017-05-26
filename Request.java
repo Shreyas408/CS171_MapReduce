@@ -4,14 +4,14 @@ import java.util.*;
 
 class Request implements Serializable{
 	int id; 
-	Tuple BallotNum;
-	Tuple AcceptNum;
+	//Tuple BallotNum;
+	//Tuple AcceptNum;
 	LogObject logobject; 
 
     public Request(int procID, int ballotCount, int acceptProcID, int acceptCounter , LogObject logobj) {
 		id = procID;
-		BallotNum = new Tuple(id, ballotCount);
-		AcceptNum = new Tuple(acceptProcID, acceptCounter);
+		//BallotNum = new Tuple(id, ballotCount);
+		//AcceptNum = new Tuple(acceptProcID, acceptCounter);
 		logobject = logobj;
     }
     /*
@@ -20,8 +20,8 @@ class Request implements Serializable{
 	return newReq;
 	}*/
 	public String toString(){
-		String result = id + " " + BallotNum.toString() + " " + AcceptNum.toString();
-		return result;
+		//String result = id + " " + BallotNum.toString() + " " + AcceptNum.toString();
+		return "result";
 	}
 
 }
