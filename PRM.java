@@ -278,7 +278,11 @@ public class PRM{
 		};
 		t.start();
 
-
+		try{
+		    Thread.sleep(3000);
+		}catch(InterruptedException i){
+		    System.out.println("ERR");
+		}
 		setUpClient();
 
 		
