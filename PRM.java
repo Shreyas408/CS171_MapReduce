@@ -81,15 +81,6 @@ public class PRM{
 			    
 		    	LogObject logObject= createLogObject(splitreq[1]);
 
-			//testing proper creation
-			/*
-			System.out.println("FileName: " + logObject.fileName);
-		    	
-		    	for (HashMap.Entry entry : logObject.wordDict.entrySet()) {
-    				System.out.println(entry.getKey() + ", " + entry.getValue());
-				}
-
-				}*/
 				Request newRequest = new Request(ballotCounter, procID, acceptCounter, logObject);
 
 			//send paxos prepare
@@ -117,7 +108,6 @@ public class PRM{
 		@Override
 		public void run(){
 			try{
-				//setUpServer();
 
         		Thread.sleep(5000);
        			while(true){
@@ -126,7 +116,7 @@ public class PRM{
        				if(cliInputStream.available() > 0)
 						 request = cliInputStream.readUTF();
 					
-					System.out.println("Received request: " + request);
+					//System.out.println("Received request: " + request);
 					if(!request.equals("1")) {
 						processCLIRequest(request);
 					}
@@ -136,7 +126,7 @@ public class PRM{
 						//DataInputStream dataIn = new DataInputStream(incomingSockets[i].getInputStream());
 
 						//request = "2";
-						System.out.println("objectIn.available(): " + inStreams[i].available());
+						//System.out.println("objectIn.available(): " + inStreams[i].available());
 						if(inStreams[i].available() > 0){
 							try{
 								System.out.println("reading object...");
@@ -151,7 +141,7 @@ public class PRM{
 								System.out.println("ClassNotFoundException");
 							}
 						}
-						System.out.println("I'm in the LOOP");
+						//System.out.println("I'm in the LOOP");
 					}
 				}
 			}
@@ -185,11 +175,11 @@ public class PRM{
 	DataInputStream cliInputStream;
 
 
-	Socket[] prmOutSockets;
-	ObjectOutputStream[] outStreams; 
+	Socket[] prmOutSockets; //
+	ObjectOutputStream[] outStreams; //
 	
 
-	Socket[] incomingSockets;
+	Socket[] incomingSockets; //
 	ObjectInputStream[] inStreams;
 
 	int reqNum = 0;
@@ -219,6 +209,7 @@ public class PRM{
     		System.out.println(PRM_IPList.length + " is the length");
     		for(int i = 0; i < PRM_IPList.length; i++) {
     			incomingSockets[i] = serverSocket.accept();
+    			//Not hitting this part 7:58
     			System.out.println("incomingSockets[" + i + "] accepted");
     			//incomingSockets[i].setSoTimeout(15000);
     		}
