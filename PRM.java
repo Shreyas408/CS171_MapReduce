@@ -292,6 +292,8 @@ public class PRM{
 
 			//update request to send back
 			Request ackReq = new Request("ack", request.ballotNum, acceptNum, currentLogObject);
+			System.out.println("My ballotNum: " + ballotNum.toString());
+			System.out.println("Request ballotNum: " + request.ballotNum.toString());
 			for(int i = 0; i < prmOutSockets.length; i++) {
 				if(ip.equals(prmOutSockets[i].getInetAddress().toString())) {
 					outStreams[i].writeObject(ackReq);
@@ -300,7 +302,8 @@ public class PRM{
 		}
     	else if(request.reqType.equals("ack")) {
     		incrementAck(request);
-
+    		System.out.println("My ballotNum: " + ballotNum.toString());
+			System.out.println("Request ballotNum: " + request.ballotNum.toString());
     		//looking for full consensus
     		if(ackCounter >= prmOutSockets.length) {
     			Tuple b = new Tuple(0,0);
