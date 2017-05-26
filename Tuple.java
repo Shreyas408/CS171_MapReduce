@@ -1,4 +1,4 @@
-public class Tuple{ 
+public class Tuple implements Serializable{ 
   public int x; 
   	public int y; 
   	public Tuple(int x, int y) { 
