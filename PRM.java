@@ -3,6 +3,7 @@ import java.io.*;
 import java.util.*;
 
 
+
 public class PRM{
 
 	public static int  PRM_PORT = 5001;
@@ -11,33 +12,6 @@ public class PRM{
     public int ballotCounter;
     public int acceptCounter;
     
-	class Request{
-		int id; 
-		Tuple BallotNum;
-		Tuple AcceptNum;
-		LogObject logobject; 
-
-	    public Request(int ballotCount, int acceptProcID, int acceptCounter , LogObject logobj) {
-			id = procID;
-			BallotNum = new Tuple(id, ballotCount);
-			AcceptNum = new Tuple(acceptProcID, acceptCounter);
-			logobject = logobj;
-	    }
-	    /*
-	    public Request createPaxosRequest(LogObject logobj) {
-		Request newReq = new Request(ballotCounter, procID, acceptCounter, logobj);
-		return newReq;
-		}*/
-		public String toString(){
-			String result = id + " " + BallotNum.toString() + " " + AcceptNum.toString();
-			return result;
-		}
-
-	}
-	class LogObject{
-		String fileName;
-		HashMap<String, Integer> wordDict = new HashMap<String, Integer>();
-	}
 	class ListeningThread extends Thread{
 
 		private ServerSocket serverSocket;
@@ -81,7 +55,7 @@ public class PRM{
 			    
 		    	LogObject logObject= createLogObject(splitreq[1]);
 
-				Request newRequest = new Request(ballotCounter, procID, acceptCounter, logObject);
+				Request newRequest = new Request(procID, ballotCounter, procID, acceptCounter, logObject);
 
 			//send paxos prepare
 				for(int i = 0; i < prmOutSockets.length; i++){
