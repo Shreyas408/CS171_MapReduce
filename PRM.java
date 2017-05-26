@@ -317,9 +317,8 @@ public class PRM{
 			prmIP[i] = in.next();
 		}
 		PRM p = new PRM(1, 1, "", null, prmIP);	
-		p.setUpServer();
 
-		p.setUpClient();
+		p.init();
 
 	}
 }
