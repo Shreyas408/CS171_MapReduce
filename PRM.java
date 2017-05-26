@@ -77,15 +77,12 @@ public class PRM{
 	}
 
 
-
-	int PORT = 5001;
 	String IP = "127.0.0.1"; 
 
 	int[] PRM_PortList;
 	String[] PRM_IPList;
 	int CLI_Port;
-	String CLI_IP; 
-	ArrayList<LogObject> log; 
+	String CLI_IP;  
 
 	ServerSocket serverSocket; //used for CLI
 	DataInputStream cliInputStream;
@@ -107,6 +104,8 @@ public class PRM{
 	Tuple ballotNum = new Tuple(0,0);
 	Tuple acceptNum = new Tuple(0,0);
 	LogObject currentLogObject = null;
+
+	ArrayList<LogObject> log = new ArrayList<LogObject>();
 
 
 	public PRM(int procID, int CLI_Port, String CLI_IP, int[] PRM_PortList, String[] PRM_IPList){
@@ -266,7 +265,19 @@ public class PRM{
 					break;
 				}
 			}
-		//newRequest.createPaxosRequest(logObject);
+		}
+		else if(splitreq[0].equals("stop")) {
+			
+		}
+		else if(splitreq[0].equals("print")) {
+			for(int i = 0; i < log.size(); i++) {
+				System.out.println(log.fileName);
+			}
+			System.out.println("Done printing");
+		}
+		else if(splitreq[0].equals("merge")) {
+			//merge two hashmaps
+
 		}
 		
     }
