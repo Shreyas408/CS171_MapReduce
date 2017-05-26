@@ -42,7 +42,7 @@ public class PRM{
 
 		private ServerSocket serverSocket;
 
-		private Socket[] incomingSockets;
+		//private Socket[] incomingSockets;
 
 		public ListeningThread() throws IOException{
 			//serverSocket = new ServerSocket(PRM_PORT);
