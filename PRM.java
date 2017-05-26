@@ -28,6 +28,10 @@ public class PRM{
 		Request newReq = new Request(ballotCounter, procID, acceptCounter, logobj);
 		return newReq;
 		}*/
+		public String toString(){
+			String result = id + " " + BallotNum.toString() + " " + AcceptNum.toString();
+		}
+
 	}
 	class LogObject{
 		String fileName;
@@ -90,8 +94,8 @@ public class PRM{
 			//send paxos prepare
 				for(int i = 0; i < prmSockets.length; i++){
 					try{
-						ObjectOutputStream oos = new ObjectOutputStream(prmSockets[i].getOutputStream());
-						oos.writeObject(newRequest); 
+						//ObjectOutputStream oos = new ObjectOutputStream(prmSockets[i].getOutputStream());
+						outStreams[i].writeObject(newRequest); 
 						System.out.println("Delivering Prepare Request");
 					}catch(IOException e){
 						e.printStackTrace();
@@ -144,25 +148,28 @@ public class PRM{
 
 						for(int i = 0; i < incomingSockets.length; i++){
 							//in = new DataInputStream(incomingSockets[i].getInputStream());
+							System.out.println("creating ObjectInputStream");
 							ObjectInputStream objectIn = new ObjectInputStream(incomingSockets[i].getInputStream());
+							DataInputStream dataIn = new DataInputStream(incomingSockets[i].getInputStream());
+
 							//request = "2";
+							System.out.println("objectIn.available(): " + objectIn.available());
 							if(objectIn.available() > 0){
 								try{
+									System.out.println("reading object...");
 									Object o = objectIn.readObject();
+									System.out.println("object read?");
 									Request r = null;
 									if(o instanceof Request){
 										r = (Request)o;
 										System.out.println("Received r");
 									}
-								}catch(ClassNotFoundException c){}
+								}catch(ClassNotFoundException c){
+									System.out.println("ClassNotFoundException");
+								}
 							}
-								//request = in.readUTF();
-							//System.out.println(request);
-							//if(!request.equals("2")) {
-								//processPaxosRequest(request);
+							System.out.println("I'm in the LOOP");
 						}
-						//System.out.println("I'm in the while loop");
-						//break;
 					}
 				}
             		//DataOutputStream out = new DataOutputStream(server.getOutputStream());
@@ -192,6 +199,7 @@ public class PRM{
 	String CLI_IP; 
 	ArrayList<LogObject> log; 
 	Socket[] prmSockets;
+	ObjectOutputStream[] outStreams; 
 
 	int reqNum = 0;
 
@@ -226,6 +234,7 @@ public class PRM{
 			System.out.println("Connecting to " + serverName + " on port " + port);
 			try{
 				prmSockets[i] = new Socket(serverName, port);
+				outStreams[i] = new ObjectOutputStream(prmSockets[i].getOutputStream());
 
 			}catch (UnknownHostException h){
 				System.out.println("UnknownHostException");
