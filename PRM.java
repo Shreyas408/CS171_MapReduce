@@ -45,8 +45,8 @@ public class PRM{
 		private Socket[] incomingSockets;
 
 		public ListeningThread() throws IOException{
-			serverSocket = new ServerSocket(PRM_PORT);
-			serverSocket.setSoTimeout(15000);
+			//serverSocket = new ServerSocket(PRM_PORT);
+			//serverSocket.setSoTimeout(15000);
 		}
 
 	    public LogObject createLogObject(String filename) {
@@ -93,9 +93,9 @@ public class PRM{
 				Request newRequest = new Request(ballotCounter, procID, acceptCounter, logObject);
 
 			//send paxos prepare
-				for(int i = 0; i < prmSockets.length; i++){
+				for(int i = 0; i < prmOutSockets.length; i++){
 					try{
-						//ObjectOutputStream oos = new ObjectOutputStream(prmSockets[i].getOutputStream());
+						//ObjectOutputStream oos = new ObjectOutputStream(prmOutSockets[i].getOutputStream());
 						outStreams[i].writeObject(newRequest); 
 						System.out.println("Delivering Prepare Request");
 					}catch(IOException e){
@@ -116,80 +116,56 @@ public class PRM{
 
 		@Override
 		public void run(){
-			incomingSockets = new Socket[PRM_IPList.length];
-			while(true){
-				try{
-					//accepting the CLI
-					System.out.println("Waiting for CLI on port " + 
-               			serverSocket.getLocalPort() + "...");
-            		Socket cliServer = serverSocket.accept();
-            		//cliServer.setSoTimeout(15000);
-            		System.out.println("Just connected to " + cliServer.getRemoteSocketAddress());
-           			
+			try{
+				//setUpServer();
 
-            		//accepting all nodes' PRM  
-            		System.out.println(PRM_IPList.length + " is the length");
-            		for(int i = 0; i < PRM_IPList.length; i++) {
-            			incomingSockets[i] = serverSocket.accept();
-            			System.out.println("incomingSockets[" + i + "] accepted");
-            			//incomingSockets[i].setSoTimeout(15000);
-            		}
+        		Thread.sleep(5000);
+       			while(true){
 
-            		Thread.sleep(5000);
-           			while(true){
-           				DataInputStream in = new DataInputStream(cliServer.getInputStream());
+       				String request = "1";
+       				if(cliInputStream.available() > 0)
+						 request = cliInputStream.readUTF();
+					
+					System.out.println("Received request: " + request);
+					if(!request.equals("1")) {
+						processCLIRequest(request);
+					}
 
-           				String request = "1";
-           				if(in.available() > 0)
-							 request = in.readUTF();
-						
-						System.out.println("Received request: " + request);
-						if(!request.equals("1")) {
-							processCLIRequest(request);
-						}
+					for(int i = 0; i < incomingSockets.length; i++){
+						//in = new DataInputStream(incomingSockets[i].getInputStream());
+						//DataInputStream dataIn = new DataInputStream(incomingSockets[i].getInputStream());
 
-						for(int i = 0; i < incomingSockets.length; i++){
-							//in = new DataInputStream(incomingSockets[i].getInputStream());
-							System.out.println("creating ObjectInputStream");
-							ObjectInputStream objectIn = new ObjectInputStream(incomingSockets[i].getInputStream());
-							DataInputStream dataIn = new DataInputStream(incomingSockets[i].getInputStream());
-
-							//request = "2";
-							System.out.println("objectIn.available(): " + objectIn.available());
-							if(objectIn.available() > 0){
-								try{
-									System.out.println("reading object...");
-									Object o = objectIn.readObject();
-									System.out.println("object read?");
-									Request r = null;
-									if(o instanceof Request){
-										r = (Request)o;
-										System.out.println("Received r");
-									}
-								}catch(ClassNotFoundException c){
-									System.out.println("ClassNotFoundException");
+						//request = "2";
+						System.out.println("objectIn.available(): " + inStreams[i].available());
+						if(inStreams[i].available() > 0){
+							try{
+								System.out.println("reading object...");
+								Object o = inStreams[i].readObject();
+								System.out.println("object read?");
+								Request r = null;
+								if(o instanceof Request){
+									r = (Request)o;
+									System.out.println("Received r");
 								}
+							}catch(ClassNotFoundException c){
+								System.out.println("ClassNotFoundException");
 							}
-							System.out.println("I'm in the LOOP");
 						}
+						System.out.println("I'm in the LOOP");
 					}
 				}
-            		//DataOutputStream out = new DataOutputStream(server.getOutputStream());
-            		//out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
-               		   //+ "\nGoodbye!");
-            		//server.close();
-				catch (SocketTimeoutException s){
-					System.out.println("Socket timed out!");
-					break;
-				}
-				catch (IOException e){
-					e.printStackTrace();
-					break;
-				}
-				catch (InterruptedException ie){
-					System.out.println("InterruptedException");
-					break;
-				}
+			}
+			catch (SocketTimeoutException s){
+				System.out.println("Socket timed out!");
+				//break;
+			}
+			catch (IOException e){
+				e.printStackTrace();
+				//break;
+			}
+			catch (InterruptedException ie){
+				System.out.println("InterruptedException");
+				//break;
 			}
 		}
 	}
@@ -204,8 +180,17 @@ public class PRM{
 	int CLI_Port;
 	String CLI_IP; 
 	ArrayList<LogObject> log; 
-	Socket[] prmSockets;
+
+	ServerSocket serverSocket; //used for CLI
+	DataInputStream cliInputStream;
+
+
+	Socket[] prmOutSockets;
 	ObjectOutputStream[] outStreams; 
+	
+
+	Socket[] incomingSockets;
+	ObjectInputStream[] inStreams;
 
 	int reqNum = 0;
 
@@ -219,30 +204,47 @@ public class PRM{
 
 	public void setUpServer(){
 		try{
-			Thread t = new ListeningThread();
-			t.start();
-		}catch(IOException e){
+			serverSocket = new ServerSocket(PRM_PORT);
+			incomingSockets = new Socket[PRM_IPList.length];
+			//accepting the CLI
+			System.out.println("Waiting for CLI on port " + 
+   			serverSocket.getLocalPort() + "...");
+    		Socket cliServer = serverSocket.accept();
+      		//cliServer.setSoTimeout(15000);
+    		System.out.println("Just connected to " + cliServer.getRemoteSocketAddress());
+   			
+			cliInputStream = new DataInputStream(cliServer.getInputStream());
+
+    		//accepting all nodes' PRM  
+    		System.out.println(PRM_IPList.length + " is the length");
+    		for(int i = 0; i < PRM_IPList.length; i++) {
+    			incomingSockets[i] = serverSocket.accept();
+    			System.out.println("incomingSockets[" + i + "] accepted");
+    			//incomingSockets[i].setSoTimeout(15000);
+    		}
+    	}
+    	catch (SocketTimeoutException s){
+			System.out.println("Socket timed out!");
+		}
+		catch (IOException e){
 			e.printStackTrace();
 		}
+		
 	}
 
 	public void setUpClient(){
-		prmSockets = new Socket[PRM_IPList.length];
+		prmOutSockets = new Socket[PRM_IPList.length];
 		outStreams = new ObjectOutputStream[PRM_IPList.length];
-		try{
-    		Thread.sleep(3000);
-		}catch(InterruptedException i){
-			System.out.println("InterruptedException");
-		}
-    	System.out.println("I'm woke");
+    	//System.out.println("I'm woke");
+    	
     	for(int i = 0; i < PRM_IPList.length; i++){
 			String serverName = PRM_IPList[i];
 			int port = 5001;
 			System.out.println("Connecting to " + serverName + " on port " + port);
 			try{
-				prmSockets[i] = new Socket(serverName, port);
-				System.out.println("Connected to prmSockets[" + i + "]");
-				outStreams[i] = new ObjectOutputStream(prmSockets[i].getOutputStream());
+				prmOutSockets[i] = new Socket(serverName, port);
+				System.out.println("Connected to prmOutSockets[" + i + "]");
+				outStreams[i] = new ObjectOutputStream(prmOutSockets[i].getOutputStream());
 				System.out.println("Connected to outStreams[" + i + "]");
 			}catch (UnknownHostException h){
 				System.out.println("UnknownHostException");
@@ -252,6 +254,50 @@ public class PRM{
 				break;
 			}
 		} 
+
+		//SetUpInputStream::
+	}
+
+	public void setUpInputStream(){
+		try{
+			inStreams = new ObjectInputStream[PRM_IPList.length];
+			for(int i = 0; i < inStreams.length; i++){
+				inStreams[i] = new ObjectInputStream(incomingSockets[i].getInputStream());
+			}
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+
+	public void init(){
+		Thread t = new Thread() {
+			@Override 
+			public void run(){
+				setUpServer();
+			}
+		};
+		t.start();
+
+
+		setUpClient();
+
+		
+		try{
+    		Thread.sleep(3000);
+		}catch(InterruptedException i){
+			System.out.println("InterruptedException");
+		}
+
+		setUpInputStream(); //ObjectInputStream objectIn = new ObjectInputStream(incomingSockets[i].getInputStream());
+
+
+		try{
+			t = new ListeningThread();
+			t.start();
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
 	}
 
 	public static void main(String[] args){
