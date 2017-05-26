@@ -14,9 +14,11 @@ public class PRM{
     
     class PRMListener extends Thread{
     	ObjectInputStream inStream;
+    	Socket inSock;
 
-    	public PRMListener(ObjectInputStream ois){
+    	public PRMListener(Socket ic, ObjectInputStream ois){
     		inStream = ois;
+    		inSock = ic;
     	}
 
     	@Override
@@ -30,6 +32,7 @@ public class PRM{
 					if(o instanceof Request){
 						r = (Request)o;
 						System.out.println("Received r");
+						processPaxosRequest(inSock.getInetAddress().toString(), r);
 					}
 				}catch(ClassNotFoundException c){
 					System.out.println("ClassNotFoundException");
@@ -97,7 +100,14 @@ public class PRM{
 
 	//Queue<String> queue = new ConcurrentLinkedQueue<String>();
 
-	int reqNum = 0;
+	//Request handling
+	int ackCounter = 0;
+	ArrayList<Request> requestList = new ArrayList<Request>();
+
+	Tuple ballotNum = new Tuple(0,0);
+	Tuple acceptNum = new Tuple(0,0);
+	LogObject currentLogObject = null;
+
 
 	public PRM(int procID, int CLI_Port, String CLI_IP, int[] PRM_PortList, String[] PRM_IPList){
 		this.CLI_Port = CLI_Port;
@@ -204,11 +214,11 @@ public class PRM{
 		t = new CLIListener();
 		t.start();
 		for(int i = 0; i < inStreams.length; i++){
-			t = new PRMListener(inStreams[i]);
+			t = new PRMListener( incomingSockets[i], inStreams[i]);
 			t.start();
 		}
 
-		printIps();
+		//printIps();
 	}
 
 	public LogObject createLogObject(String filename) {
@@ -243,8 +253,7 @@ public class PRM{
 		    
 	    	LogObject logObject= createLogObject(splitreq[1]);
 
-			Request newRequest = new Request(procID, ballotCounter, procID, acceptCounter, logObject);
-			ballotCounter++;
+			Request newRequest = new Request(procID, ++ballotCounter, acceptNum, logObject);
 
 		//send paxos prepare
 			for(int i = 0; i < prmOutSockets.length; i++){
@@ -262,10 +271,50 @@ public class PRM{
 		
     }
 
-    public void processPaxosRequest(String request) {
+    public void processPaxosRequest(String ip, Request request) throws IOException{
 	//TODO:
-    	System.out.println(request);
+    	System.out.println("Request type: " + request.reqType);
+    	if(request.reqType.equals("prepare")) {
+    		//ack if ballot is bigger than mine
+			ballotNum = ballotNum.compare(request.ballotNum);
+
+			//update request to send back
+			Request ackReq = new Request("ack", request.ballotNum, acceptNum, currentLogObject);
+			for(int i = 0; i < prmOutSockets.length; i++) {
+				if(ip.equals(prmOutSockets[i].getInetAddress().toString())) {
+					outStreams[i].writeObject(ackReq);
+				}
+			}
+		}
+    	else if(request.reqType.equals("ack")) {
+    		incrementAck(request);
+
+    		//looking for full consensus
+    		if(ackCounter >= prmOutSockets.length) {
+    			Tuple b = new Tuple(0,0);
+    			LogObject myVal = currentLogObject;
+    			for(int i = 0; i < ackCounter; i++) {
+    				if(b.isLessThan(requestList.get(i).ballotNum) && 
+    					requestList.get(i).logobject != null) {
+    					b = requestList.get(i).ballotNum;
+    					myVal = requestList.get(i).logobject;
+    				}
+    			}
+    			Request acceptReq = new Request("accept", ballotNum, acceptNum, myVal);
+    			for(int i = 0; i < prmOutSockets.length; i++) {
+    				outStreams[i].writeObject(acceptReq);
+    			}
+    		}
+    	}
+    	else {
+    		//handling accept
+    	}
 		return;
+    }
+
+    public synchronized void incrementAck(Request request) {
+    	ackCounter++;
+    	requestList.add(request);
     }
 
     public void printIps(){

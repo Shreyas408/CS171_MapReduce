@@ -3,17 +3,27 @@ import java.io.*;
 import java.util.*;
 
 class Request implements Serializable{
-	int id; 
-	Tuple BallotNum;
-	Tuple AcceptNum;
-	LogObject logobject; 
+	public Tuple ballotNum = new Tuple(0,0);
+	public Tuple acceptNum = new Tuple(0,0);
+	public LogObject logobject = null; 
+	public String reqType; 
 
-    public Request(int procID, int ballotCount, int acceptProcID, int acceptCounter , LogObject logobj) {
-		id = procID;
-		//BallotNum = new Tuple(id, ballotCount);
-		//AcceptNum = new Tuple(acceptProcID, acceptCounter);
+	//Prepare
+    public Request(int procID, int ballotCount, Tuple acceptNum, LogObject logobj) {
+		reqType = "prepare";
+		ballotNum = new Tuple(procID, ballotCount);
+		this.acceptNum = acceptNum;
 		logobject = logobj;
     }
+
+    //ACK
+    public Request(String reqType, Tuple preparerBallot, Tuple currentAcceptBallot, LogObject currentAcceptVal) {
+    	this.reqType = reqType;
+    	ballotNum = preparerBallot;
+    	acceptNum = currentAcceptBallot;
+    	logobject = currentAcceptVal;
+    }
+
     /*
     public Request createPaxosRequest(LogObject logobj) {
 	Request newReq = new Request(ballotCounter, procID, acceptCounter, logobj);
@@ -25,4 +35,3 @@ class Request implements Serializable{
 	}
 
 }
-

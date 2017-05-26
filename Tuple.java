@@ -24,6 +24,23 @@ public class Tuple implements Serializable{
         return this;
     }
   }
+
+  public boolean isLessThan(Tuple t2) {
+    if(x == t2.x){
+      if(y < t2.y)
+        return true;
+      else
+        return false;
+    }
+    else{
+      if(x < t2.x)
+        return true;
+      else
+        return false;
+    }
+
+  }
+
   public String toString(){
     return "<" + x + "," + y + ">";
   }
