@@ -325,10 +325,10 @@ public class PRM{
     		// 	incrementAccept(false);
     		// }
 
-    		System.out.println("Upon receiving Accept: " + ballotNum.toString());
+    		System.out.println("Upon receiving Accept: " + acceptNum.toString());
     		System.out.println("Wiht request ballon num: " + request.ballotNum.toString());
 
-    		if(ballotNum.isLessThan(request.ballotNum)){
+    		if(acceptNum.isLessThan(request.ballotNum)){
  
      			//check to make sure we're only sending the first time
 				Request acceptReq = new Request("accept", request.ballotNum, null, request.logobject);
@@ -342,7 +342,7 @@ public class PRM{
     			currentLogObject = request.logobject;
 
     		}
-    		else if(ballotNum.isEqualTo(request.ballotNum)){
+    		else if(acceptNum.isEqualTo(request.ballotNum)){
     			incrementAccept(false);
     		}
 
