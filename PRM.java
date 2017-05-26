@@ -316,6 +316,7 @@ public class PRM{
     				}
     			}
     			Request acceptReq = new Request("accept", ballotNum, null, myVal);
+    			acceptNum = request.ballotNum;
     			for(int i = 0; i < prmOutSockets.length; i++) {
     				outStreams[i].writeObject(acceptReq);
     			}
@@ -337,6 +338,8 @@ public class PRM{
     			ballotNum = request.ballotNum;
     			currentLogObject = request.logobject;
  
+ 				System.out.println("Post accept ballotNum: " + ballotNum.toString());
+ 				System.out.println("Post accept acceptNum: " + acceptNum.toString());
      			//check to make sure we're only sending the first time
 				Request acceptReq = new Request("accept", request.ballotNum, null, request.logobject);
 				for(int i = 0; i < prmOutSockets.length; i++) {
