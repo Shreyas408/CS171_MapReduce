@@ -22,6 +22,7 @@ public class PRM{
     	@Override
     	public void run(){
     		while(true){
+
 	    		try{
 					System.out.println("reading object...");
 					Object o = inStream.readObject();
@@ -37,6 +38,7 @@ public class PRM{
 				}catch(IOException e){
 					e.printStackTrace();
 				}
+				
 			}
     	}
     }
@@ -106,6 +108,8 @@ public class PRM{
 	ArrayList<LogObject> log = new ArrayList<LogObject>();
 
 	int acceptCounter = 0;
+
+	boolean paxosRun = true;
 
 
 	public PRM(int procID, String[] PRM_IPList){
@@ -246,6 +250,10 @@ public class PRM{
 		String[] splitreq = request.trim().split("\\s+");
 		//Prepare for paxos
 		//CLI: replicate, stop, resume, total, print, merge
+		if(!paxosRun && !splitreq[0].equals("resume")){
+			return;
+		}
+
 		if(splitreq[0].equals("replicate")) {
 		    
 	    	currentLogObject = createLogObject(splitreq[1]);
@@ -266,7 +274,11 @@ public class PRM{
 			}
 		}
 		else if(splitreq[0].equals("stop")) {
+			paxosRun = false;
 			
+		}
+		else if(splitreq[0].equals("resume")){
+			paxosRun = true;
 		}
 		else if(splitreq[0].equals("print")) {
 			for(int i = 0; i < log.size(); i++) {
@@ -283,6 +295,7 @@ public class PRM{
 
     public void processPaxosRequest(String ip, Request request) throws IOException{
 	//TODO:
+    	if(!paxosRun) return;
     	System.out.println("Request type: " + request.reqType);
     	if(request.reqType.equals("prepare")) {
     		//ack if ballot is bigger than mine
