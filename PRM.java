@@ -288,7 +288,33 @@ public class PRM{
 		}
 		else if(splitreq[0].equals("merge")) {
 			//merge two hashmaps
+			HashMap<String, Integer>  mergedDict = new HashMap<String, Integer>();
+			for(int i = 1; i < splitreq.length; i++) {
+				//getting position
+				int pos = Integer.parseInt(splitreq[i]);
+				HashMap<String, Integer> currDict = log.get(pos).wordDict;
+				for(String currentKey : currDict.keySet()){
+					//sum += log.get(pos).wordDict.get(currentKey);
+					if(mergedDict.containsKey(currentKey)){
+						mergedDict.put(currentKey, mergedDict.get(currentKey)+currDict.get(currentKey));
+					}
+					else{
+						mergedDict.put(currentKey, currDict.get(currentKey));
+					}
+				}
+			} 
 
+		}else if(splitreq[0].equals("total")) {
+			//pos1 is at splitreq[1]
+			//pos2 is at splitreq[2]
+			int sum = 0;
+			for(int i = 1; i < splitreq.length; i++) {
+				//getting position
+				int pos = Integer.parseInt(splitreq[i]);
+				for(String currentKey : log.get(pos).wordDict.keySet()){
+					sum += log.get(pos).wordDict.get(currentKey);
+				}
+			}
 		}
 		
     }

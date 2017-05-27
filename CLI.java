@@ -127,13 +127,15 @@ public class CLI{
 				break;
 			case TOTAL:
 				System.out.println("Total");
+				out.writeUTF(line);
 				break;
 			case PRINT:
 				System.out.println("Print");
 				out.writeUTF(line);
 				break;
 			case MERGE:
-				System.out.println("Marge");
+				System.out.println("Merge");
+				out.writeUTF(line);
 				break;
 			default:
 				System.out.println("Invalid Input");
