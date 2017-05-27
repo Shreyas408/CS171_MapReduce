@@ -31,6 +31,9 @@ public class CLI{
 
 	//public CLI(int prmPort, String prmIP){
 	//}
+	//PRM communication
+	OutputStream outToServer;
+	DataOutputStream out;
 
 	class ServerThread extends Thread{
 		private ServerSocket serverSocket;
@@ -78,8 +81,8 @@ public class CLI{
         	prmClient = new Socket(serverName, port);
          
         	System.out.println("Just connected to " + prmClient.getRemoteSocketAddress());
-        	OutputStream outToServer = prmClient.getOutputStream();
-        	DataOutputStream out = new DataOutputStream(outToServer);
+        	outToServer = prmClient.getOutputStream();
+        	out = new DataOutputStream(outToServer);
          
         	out.writeUTF("Hello from " + prmClient.getLocalSocketAddress());
         	InputStream inFromServer = prmClient.getInputStream();
@@ -99,10 +102,9 @@ public class CLI{
 		}
 	}
 
-	public void readInput(){
+	public void readInput() throws Exception{
 		Scanner in = new Scanner(System.in);
 		String line = in.nextLine();
-
 	
 		switch (getCmd(line)){
 			case MAP:
@@ -113,26 +115,22 @@ public class CLI{
 				break;
 			case REPLICATE:
 				System.out.println("Replicate");
-				// Send message to PRM
-				try{
-					OutputStream outToServer = prmClient.getOutputStream();
-					DataOutputStream out = new DataOutputStream(outToServer);
-					out.writeUTF(line);
-				}catch(Exception e){
-					e.printStackTrace();
-				}
+				out.writeUTF(line);
 				break;
 			case STOP:
 				System.out.println("Stop");
+				out.writeUTF(line);
 				break;
 			case RESUME:
 				System.out.println("Resume");
+				out.writeUTF(line);
 				break;
 			case TOTAL:
 				System.out.println("Total");
 				break;
 			case PRINT:
 				System.out.println("Print");
+				out.writeUTF(line);
 				break;
 			case MERGE:
 				System.out.println("Marge");
@@ -177,7 +175,12 @@ public class CLI{
 	public static void main(String[] args){
 		CLI c = new CLI();
 		c.setupClient();
-		while(true)
-			c.readInput();
+		while(true){
+			try{
+				c.readInput();
+			}catch(Exception e){
+				System.out.println("e");
+			}
+		}
 	}
 }

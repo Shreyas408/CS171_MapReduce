@@ -354,6 +354,7 @@ public class PRM{
 
     		if(acceptCounter >= prmOutSockets.length) {
     			//decide on this log object
+    			System.out.println("Paxos complete adding into Log");
     			log.add(currentLogObject);
     			return;
     		}
