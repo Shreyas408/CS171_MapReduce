@@ -108,12 +108,10 @@ public class PRM{
 	int acceptCounter = 0;
 
 
-	public PRM(int procID, int CLI_Port, String CLI_IP, int[] PRM_PortList, String[] PRM_IPList){
-		this.CLI_Port = CLI_Port;
-		this.CLI_IP = CLI_IP;
-		this.PRM_PortList = PRM_PortList;
+	public PRM(int procID, String[] PRM_IPList){
+		//this.CLI_Port = CLI_Port;
 		this.PRM_IPList = PRM_IPList; 
-		this.procID = procID;
+		//this.procID = procID;
 	}
 
 	public void setUpServer(){
@@ -356,6 +354,7 @@ public class PRM{
     			//decide on this log object
     			System.out.println("Paxos complete adding into Log");
     			log.add(currentLogObject);
+    			currentLogObject = null;
     			return;
     		}
     	}
@@ -401,7 +400,7 @@ public class PRM{
 		for(int i = 0; i < numPRMs; i++){
 			prmIP[i] = in.next();
 		}
-		PRM p = new PRM(1, 1, "", null, prmIP);	
+		PRM p = new PRM(procID, prmIP);	
 
 		p.init();
 
