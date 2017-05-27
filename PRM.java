@@ -233,7 +233,7 @@ public class PRM{
 
 		LogObject myLogObject = new LogObject();
 		myLogObject.fileName = filename;
-
+ 
 		while(in.hasNext()){
 			String str = in.next();
 			str = str.substring(1,str.length()-1);
@@ -251,8 +251,8 @@ public class PRM{
 		//CLI: replicate, stop, resume, total, print, merge
 		if(splitreq[0].equals("replicate")) {
 		    
-	    	LogObject logObject= createLogObject(splitreq[1]);
-	    	ballotNum = new Tuple(procID, ++ballotCounter);
+	    	currentLogObject = createLogObject(splitreq[1]);
+	    	ballotNum = new Tuple(++ballotCounter, procID);
 			Request newRequest = new Request(procID, ballotCounter, acceptNum, logObject);
 
 		//send paxos prepare
