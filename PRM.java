@@ -302,6 +302,11 @@ public class PRM{
 						mergedDict.put(currentKey, currDict.get(currentKey));
 					}
 				}
+			}
+
+			System.out.println("Result of merge");
+			for(String currentKey : mergedDict.keySet()){
+				System.out.println("<" + currentKey + "," + mergedDict.get(currentKey) + ">");
 			} 
 
 		}else if(splitreq[0].equals("total")) {
@@ -315,6 +320,7 @@ public class PRM{
 					sum += log.get(pos).wordDict.get(currentKey);
 				}
 			}
+			System.out.println("Total result: " + sum);
 		}
 		
     }
