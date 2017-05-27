@@ -9,12 +9,13 @@ class Request implements Serializable{
 	public String reqType; 
 
 	//Prepare
-    public Request(int procID, int ballotCount, Tuple acceptNum, LogObject logobj) {
+	/*
+    public Request(Tuple ballotNum, Tuple acceptNum, LogObject logobj) {
 		reqType = "prepare";
-		ballotNum = new Tuple(procID, ballotCount);
+		this.ballotNum = ballotNum;
 		this.acceptNum = acceptNum;
 		logobject = logobj;
-    }
+    }*/
 
     //ACK
     public Request(String reqType, Tuple preparerBallot, Tuple currentAcceptBallot, LogObject currentAcceptVal) {

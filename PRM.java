@@ -9,7 +9,6 @@ public class PRM{
 	public static int  PRM_PORT = 5001;
 
     public static int procID;
-    public int ballotCounter;
     
     class PRMListener extends Thread{
     	ObjectInputStream inStream;
@@ -252,8 +251,9 @@ public class PRM{
 		if(splitreq[0].equals("replicate")) {
 		    
 	    	currentLogObject = createLogObject(splitreq[1]);
-	    	ballotNum = new Tuple(++ballotCounter, procID);
-			Request newRequest = new Request(procID, ballotCounter, acceptNum, logObject);
+	    	int newBallotCount = ballotNum.x + 1;
+	    	ballotNum = new Tuple(newBallotCount, procID);
+			Request newRequest = new Request("prepare", ballotNum, acceptNum, currentLogObject);
 
 		//send paxos prepare
 			for(int i = 0; i < prmOutSockets.length; i++){
