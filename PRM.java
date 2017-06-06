@@ -363,6 +363,7 @@ public class PRM{
     			for(int i = 0; i < prmOutSockets.length; i++) {
     				outStreams[i].writeObject(acceptReq);
     			}
+    			incrementAccept(true);
     		}
     	}
     	else {
@@ -395,13 +396,15 @@ public class PRM{
     			incrementAccept(false);
     		}
 
-    		if(acceptCounter >= prmOutSockets.length) {
-    			//decide on this log object
-    			System.out.println("Paxos complete adding into Log");
-    			log.add(currentLogObject);
-    			currentLogObject = null;
-    			return;
-    		}
+
+    		// if(acceptCounter == (prmOutSockets.length+1)/2) {
+    		// 	//decide on this log object
+    		// 	System.out.println("Paxos complete adding into Log: " + acceptCounter + " w/ len " + prmOutSockets.length);
+    		// 	log.add(currentLogObject);
+    		// 	currentLogObject = null;
+    		// 	//acceptCounter = 0;
+    		// 	return;
+    		// }
     	}
 		return;
     }
@@ -419,6 +422,13 @@ public class PRM{
     	else{
     		acceptCounter++;
     	}
+    	if(acceptCounter == (prmOutSockets.length+1)/2) {
+			//decide on this log object
+			System.out.println("Paxos complete adding into Log: " + acceptCounter + " w/ len " + prmOutSockets.length);
+			log.add(currentLogObject);
+			currentLogObject = null;
+			//acceptCounter = 0;
+		}
 
     }
 
