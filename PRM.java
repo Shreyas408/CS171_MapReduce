@@ -108,6 +108,7 @@ public class PRM{
 	ArrayList<LogObject> log = new ArrayList<LogObject>();
 
 	int acceptCounter = 0;
+	Tuple lastAcceptedBallot = new Tuple(0,0);
 
 	boolean paxosRun = true;
 
@@ -358,11 +359,11 @@ public class PRM{
     		//System.out.println("My ballotNum: " + ballotNum.toString());
 			//System.out.println("Request ballotNum: " + request.ballotNum.toString());
     		//looking for full consensus
-    		if(ackCounter == (prmOutSockets.length+1)/2) {
-    			ackCounter = 0;
+    		if(ackCounter > (prmOutSockets.length+1)/2) {
+    			System.out.println("We only want to see this once");
     			Tuple b = new Tuple(0,0);
     			LogObject myVal = currentLogObject;
-    			for(int i = 0; i < ackCounter; i++) {
+    			for(int i = 0; i < requestList.size(); i++) {
     				if(b.isLessThan(requestList.get(i).ballotNum) && 
     					requestList.get(i).logobject != null) {
     					b = requestList.get(i).ballotNum;
@@ -375,6 +376,7 @@ public class PRM{
     				outStreams[i].writeObject(acceptReq);
     			}
     			incrementAccept(true);
+    			ackCounter = 0;
     		}
 			System.out.println(procID + " values after ACK: " + ballotNum + " " + acceptNum + " " + currentLogObject + "\n");
 
@@ -389,7 +391,9 @@ public class PRM{
 
     		//System.out.println("Upon receiving Accept: " + acceptNum.toString());
     		//System.out.println("Wiht request ballon num: " + request.ballotNum.toString());
-
+			if(lastAcceptedBallot.isEqualTo(request.ballotNum)) {
+				return;
+			}
     		if(acceptNum.isLessThan(request.ballotNum)){
 
     			acceptNum = request.ballotNum;
@@ -445,6 +449,7 @@ public class PRM{
 			log.add(currentLogObject);
 			currentLogObject = null;
 			acceptCounter = 0;
+			lastAcceptedBallot = acceptNum;
 			acceptNum = new Tuple(0,0);
 			ackCounter = 0; 
 		}
