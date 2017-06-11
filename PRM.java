@@ -404,7 +404,10 @@ public class PRM{
     				}
     			}
     			Request acceptReq = new Request("accept", ballotNum, null, myVal);
-    			acceptNum = request.ballotNum;
+    			//if my ballotNum == req.ballotNum => accept on my val
+    			//change my acceptnum to ballot number, don't change otherwise
+    			if(ballotNum.equals(request.ballotNum))
+    				acceptNum = request.ballotNum; //PROBLEM HERE ERROR WHAT WENT WRONG 
     			for(int i = 0; i < prmOutSockets.length; i++) {
     				outStreams[i].writeObject(acceptReq);
     			}
@@ -441,7 +444,7 @@ public class PRM{
 					outStreams[i].writeObject(acceptReq);
 				}
 				incrementAccept(true); //original acceptor's accept 
-
+				incrementAccept(false);
     		}
     		else if(acceptNum.isEqualTo(request.ballotNum)){
     			incrementAccept(false);
