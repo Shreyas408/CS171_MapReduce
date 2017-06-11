@@ -348,12 +348,12 @@ public class PRM{
 				}
 			}
 
-			System.out.println(procID + " values after prepare: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject + "\n");
+			System.out.println(procID + " values after prepare: " + ballotNum + " " + acceptNum + " " + currentLogObject + "\n");
 
 		}
     	else if(request.reqType.equals("ack")) {
-    		System.out.println(procID + " Reveived ACK: " + request.ballotNum.toString() + request.acceptNum.toString() + request.logobject);
-			System.out.println(procID + " values before ACK: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject);
+    		System.out.println(procID + " Reveived ACK: " + request.ballotNum + request.acceptNum + request.logobject);
+			System.out.println(procID + " values before ACK: " + ballotNum + " " + acceptNum + " " + currentLogObject);
     		incrementAck(request);
     		//System.out.println("My ballotNum: " + ballotNum.toString());
 			//System.out.println("Request ballotNum: " + request.ballotNum.toString());
@@ -375,13 +375,13 @@ public class PRM{
     			}
     			incrementAccept(true);
     		}
-			System.out.println(procID + " values after ACK: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject + "\n");
+			System.out.println(procID + " values after ACK: " + ballotNum + " " + acceptNum + " " + currentLogObject + "\n");
 
     	}
     	else {
 
-    		System.out.println(procID + " Reveived Accept: " + request.ballotNum.toString() + request.acceptNum.toString() + request.logobject);
-			System.out.println(procID + " values before Accept: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject);
+    		System.out.println(procID + " Reveived Accept: " + request.ballotNum + request.acceptNum + request.logobject);
+			System.out.println(procID + " values before Accept: " + ballotNum + " " + acceptNum + " " + currentLogObject);
     		// if(acceptNum.isLessThan(request.ballotNum)) {
     		// 	incrementAccept(false);
     		// }
@@ -418,7 +418,7 @@ public class PRM{
     		// 	//acceptCounter = 0;
     		// 	return;
     		// }
-			System.out.println(procID + " values after Accept: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject + "\n");
+			System.out.println(procID + " values after Accept: " + ballotNum + " " + acceptNum + " " + currentLogObject + "\n");
 
     	}
 		return;
