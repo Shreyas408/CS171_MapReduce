@@ -33,6 +33,7 @@ public class PRM{
 						//System.out.println("Received r");
 						processPaxosRequest(inSock.getInetAddress().toString(), r);
 					}
+
 				}catch(ClassNotFoundException c){
 					System.out.println("ClassNotFoundException");
 				}catch(IOException e){
@@ -281,7 +282,22 @@ public class PRM{
 			
 		}
 		else if(splitreq[0].equals("resume")){
+			UpdateRequest up = new UpdateRequest("update", null);
+			//broad
+			for(int i = 0; i < prmOutSockets.length; i++) {
+				outStreams[i].writeObject(up);
+			}
+			Object o = inStream.readObject();
+			if(o instanceof UpdateRequest){
+				UpdateRequest r = (UpdateRequest)o;
+				//System.out.println("Received r");
+				for(int i = log.size()-1; i < r.logobjects.size(); i++){
+					log.add(r.logobjects.get(i));
+				}
+				ballotNum = r.ballotNum;	
+			}
 			paxosRun = true;
+
 		}
 		else if(splitreq[0].equals("print")) {
 			for(int i = 0; i < log.size(); i++) {
@@ -332,7 +348,22 @@ public class PRM{
 	//TODO:
     	if(!paxosRun) return;
     	//System.out.println("Request type: " + request.reqType);
-    	if(request.reqType.equals("prepare")) {
+    	if(request.reqType.equals("update")){
+    		//If logobjects is null, we need to send our log object
+    		if(request.logobjects == null){
+    			request.ballotNum = ballotNum;
+    			request.logobjects = log; 
+    			for(int i = 0; i < prmOutSockets.length; i++) {
+					if(ip.equals(prmOutSockets[i].getInetAddress().toString())) {
+						outStreams[i].writeObject(request);
+					}
+				}
+
+    		}
+    		return;
+    		//If else, it's just cleaning out the stream, so return
+    	}
+    	else if(request.reqType.equals("prepare")) {
     		//ack if ballot is bigger than mine
     		System.out.println(procID + " Reveived Prepare: " + request.ballotNum.toString());
 			System.out.println(procID + " values before prepare: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject);
