@@ -124,7 +124,7 @@ public class PRM{
 			incomingSockets = new Socket[PRM_IPList.length];
 			//accepting the CLI
 			//System.out.println("Waiting for CLI on port " + 
-   			serverSocket.getLocalPort() + "...");
+   			//serverSocket.getLocalPort() + "...");
     		Socket cliServer = serverSocket.accept();
       		//cliServer.setSoTimeout(15000);
     		//System.out.println("Just connected to " + cliServer.getRemoteSocketAddress());
@@ -263,7 +263,7 @@ public class PRM{
 			Request newRequest = new Request("prepare", ballotNum, null, null);
 
 		//send paxos prepare
-			System.out.println(ProcID + " Sending Prepare: " + ballotNum.toString());
+			System.out.println(procID + " Sending Prepare: " + ballotNum.toString());
 			for(int i = 0; i < prmOutSockets.length; i++){
 				try{
 					//ObjectOutputStream oos = new ObjectOutputStream(prmOutSockets[i].getOutputStream());
@@ -333,8 +333,8 @@ public class PRM{
     	//System.out.println("Request type: " + request.reqType);
     	if(request.reqType.equals("prepare")) {
     		//ack if ballot is bigger than mine
-    		System.out.println(ProcID + " Reveived Prepare: " + request.ballotNum.toString());
-			System.out.println(ProcID + " values before prepare: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject);
+    		System.out.println(procID + " Reveived Prepare: " + request.ballotNum.toString());
+			System.out.println(procID + " values before prepare: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject);
 
 			ballotNum = ballotNum.compare(request.ballotNum);
 
@@ -348,12 +348,12 @@ public class PRM{
 				}
 			}
 
-			System.out.println(ProcID + " values after prepare: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject + "\n");
+			System.out.println(procID + " values after prepare: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject + "\n");
 
 		}
     	else if(request.reqType.equals("ack")) {
-    		System.out.println(ProcID + " Reveived ACK: " + request.ballotNum.toString() + request.acceptNum.toString() + request.logobject);
-			System.out.println(ProcID + " values before ACK: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject);
+    		System.out.println(procID + " Reveived ACK: " + request.ballotNum.toString() + request.acceptNum.toString() + request.logobject);
+			System.out.println(procID + " values before ACK: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject);
     		incrementAck(request);
     		//System.out.println("My ballotNum: " + ballotNum.toString());
 			//System.out.println("Request ballotNum: " + request.ballotNum.toString());
@@ -375,13 +375,13 @@ public class PRM{
     			}
     			incrementAccept(true);
     		}
-			System.out.println(ProcID + " values after ACK: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject + "\n");
+			System.out.println(procID + " values after ACK: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject + "\n");
 
     	}
     	else {
 
-    		System.out.println(ProcID + " Reveived Accept: " + request.ballotNum.toString() + request.acceptNum.toString() + request.logobject);
-			System.out.println(ProcID + " values before Accept: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject);
+    		System.out.println(procID + " Reveived Accept: " + request.ballotNum.toString() + request.acceptNum.toString() + request.logobject);
+			System.out.println(procID + " values before Accept: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject);
     		// if(acceptNum.isLessThan(request.ballotNum)) {
     		// 	incrementAccept(false);
     		// }
@@ -418,7 +418,7 @@ public class PRM{
     		// 	//acceptCounter = 0;
     		// 	return;
     		// }
-			System.out.println(ProcID + " values after Accept: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject + "\n");
+			System.out.println(procID + " values after Accept: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject + "\n");
 
     	}
 		return;
@@ -440,7 +440,7 @@ public class PRM{
     	if(acceptCounter == (prmOutSockets.length+1)/2) {
 			//decide on this log object
 			System.out.println("Paxos complete adding into Log: " + acceptCounter + " w/ len " + prmOutSockets.length);
-			System.out.println("LogObject: " + currentLogObject.filename + "\n");
+			System.out.println("LogObject: " + currentLogObject.fileName + "\n");
 			log.add(currentLogObject);
 			currentLogObject = null;
 			acceptNum = new Tuple(0,0);
