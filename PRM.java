@@ -261,7 +261,7 @@ public class PRM{
 	    	ballotNum = new Tuple(newBallotCount, procID);
 			//Request newRequest = new Request("prepare", ballotNum, acceptNum, currentLogObject);
 			Request newRequest = new Request("prepare", ballotNum, null, null);
-
+			ackCounter = 1;
 		//send paxos prepare
 			System.out.println(procID + " Sending Prepare: " + ballotNum.toString());
 			for(int i = 0; i < prmOutSockets.length; i++){
@@ -358,7 +358,8 @@ public class PRM{
     		//System.out.println("My ballotNum: " + ballotNum.toString());
 			//System.out.println("Request ballotNum: " + request.ballotNum.toString());
     		//looking for full consensus
-    		if(ackCounter >= prmOutSockets.length) {
+    		if(ackCounter == (prmOutSockets.length+1)/2) {
+    			ackCounter = 0;
     			Tuple b = new Tuple(0,0);
     			LogObject myVal = currentLogObject;
     			for(int i = 0; i < ackCounter; i++) {
@@ -437,13 +438,15 @@ public class PRM{
     	else{
     		acceptCounter++;
     	}
-    	if(acceptCounter == (prmOutSockets.length+1)/2) {
+    	if(acceptCounter == (prmOutSockets.length+1)/2 + 1) {
 			//decide on this log object
 			System.out.println("Paxos complete adding into Log: " + acceptCounter + " w/ len " + prmOutSockets.length);
 			System.out.println("LogObject: " + currentLogObject.fileName + "\n");
 			log.add(currentLogObject);
 			currentLogObject = null;
+			acceptCounter = 0;
 			acceptNum = new Tuple(0,0);
+			ackCounter = 0; 
 		}
 
     }
