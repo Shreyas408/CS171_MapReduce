@@ -247,7 +247,7 @@ public class PRM{
 		return myLogObject;
     }
     
-    public void processCLIRequest(String request) {
+    public void processCLIRequest(String request) throws IOException {
 		//split on whitespace into array splitreq
 		String[] splitreq = request.trim().split("\\s+");
 		//Prepare for paxos
@@ -287,17 +287,6 @@ public class PRM{
 			for(int i = 0; i < prmOutSockets.length; i++) {
 				outStreams[i].writeObject(up);
 			}
-			Object o = inStream.readObject();
-			if(o instanceof UpdateRequest){
-				UpdateRequest r = (UpdateRequest)o;
-				//System.out.println("Received r");
-				for(int i = log.size()-1; i < r.logobjects.size(); i++){
-					log.add(r.logobjects.get(i));
-				}
-				ballotNum = r.ballotNum;	
-			}
-			paxosRun = true;
-
 		}
 		else if(splitreq[0].equals("print")) {
 			for(int i = 0; i < log.size(); i++) {
@@ -346,13 +335,26 @@ public class PRM{
 
     public void processPaxosRequest(String ip, Request request) throws IOException{
 	//TODO:
+    	if(request.reqType.equals("update2")){
+    		
+    		if(!paxosRun){
+    			for(int i = log.size()-1; i < ((UpdateRequest)request).logobjects.size(); i++){
+					log.add(((UpdateRequest)request).logobjects.get(i));
+				}
+				ballotNum = ((UpdateRequest)request).ballotNum;
+				paxosRun = true;	
+			}
+			return;
+    	}
+
     	if(!paxosRun) return;
     	//System.out.println("Request type: " + request.reqType);
     	if(request.reqType.equals("update")){
     		//If logobjects is null, we need to send our log object
-    		if(request.logobjects == null){
+    		request.reqType = "update2";
+    		if(((UpdateRequest)request).logobjects == null){
     			request.ballotNum = ballotNum;
-    			request.logobjects = log; 
+    			((UpdateRequest)request).logobjects = log; 
     			for(int i = 0; i < prmOutSockets.length; i++) {
 					if(ip.equals(prmOutSockets[i].getInetAddress().toString())) {
 						outStreams[i].writeObject(request);
