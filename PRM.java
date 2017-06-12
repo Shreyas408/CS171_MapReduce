@@ -378,18 +378,40 @@ public class PRM{
 		//		System.out.println("null");
 		//	}
 
-			ballotNum = ballotNum.compare(request.ballotNum);
+			//ballotNum = ballotNum.compare(request.ballotNum);
 
+
+    		
 			//update request to send back
-			Request ackReq = new Request("ack", ballotNum, acceptNum, currentLogObject);
-			//System.out.println("My ballotNum: " + ballotNum.toString());
-			//System.out.println("Request ballotNum: " + request.ballotNum.toString());
-			System.out.println("senidng ack...");
-			for(int i = 0; i < prmOutSockets.length; i++) {
-				if(ip.equals(prmOutSockets[i].getInetAddress().toString())) {
-					outStreams[i].writeObject(ackReq);
+			//Request ackReq = new Request("ack", ballotNum, acceptNum, currentLogObject);
+			if(ballotNum.isLessThan(request.ballotNum)){
+				//ballotNum = request.ballotNum;
+				//acceptNum = new Tuple(0,0);
+				//currentLogObject = null;
+
+				Request ackReq = new Request("ack", request.ballotNum, acceptNum, currentLogObject);
+			
+				//System.out.println("My ballotNum: " + ballotNum.toString());
+				//System.out.println("Request ballotNum: " + request.ballotNum.toString());
+				System.out.println("sending ack...");
+				for(int i = 0; i < prmOutSockets.length; i++) {
+					if(ip.equals(prmOutSockets[i].getInetAddress().toString())) {
+						outStreams[i].writeObject(ackReq);
+					}
 				}
+
 			}
+
+			// Request ackReq = new Request("ack", ballotNum, acceptNum, currentLogObject);
+			
+			// //System.out.println("My ballotNum: " + ballotNum.toString());
+			// //System.out.println("Request ballotNum: " + request.ballotNum.toString());
+			// System.out.println("sending ack...");
+			// for(int i = 0; i < prmOutSockets.length; i++) {
+			// 	if(ip.equals(prmOutSockets[i].getInetAddress().toString())) {
+			// 		outStreams[i].writeObject(ackReq);
+			// 	}
+			// }
 
 			//	System.out.print(procID + " values after prepare: " + ballotNum + " " + acceptNum + " ");
 			//if(currentLogObject != null){
