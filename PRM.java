@@ -332,7 +332,7 @@ public class PRM{
 		
     }
 
-    public void processPaxosRequest(String ip, Request request) throws IOException{
+    public synchronized void processPaxosRequest(String ip, Request request) throws IOException{
 	//TODO:
     	if(request.reqType.equals("update2")){
     		
@@ -515,6 +515,7 @@ public class PRM{
     	
     	if(reset){
     		acceptCounter = 1;
+    		return;
     	}
     	else{
     		acceptCounter++;
