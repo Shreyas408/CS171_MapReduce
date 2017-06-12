@@ -181,14 +181,14 @@ public class CLI{
 				while(curChar != ' ') { //keep moving until you hit a space
 				    //System.out.println(curChar);
 				    offset += 1;
-				    reader.skip(1);
+				    //reader.skip(1);
 				    curChar = (char)reader.read();
 				}
 				offset+=1;
 				System.out.println("offset value: " + offset);
 				//map1 gets 0 offset-1
 				//map2 gets offset (chars-(offset-1))
-				map1out.writeUTF("map " + splitline[1] + " 0 " + (offset));
+				map1out.writeUTF("map " + splitline[1] + " 0 " + (offset-1));
 				map2out.writeUTF("map " + splitline[1] + " " + offset + " " + (chars-(offset+1)));
 				
 				break;
