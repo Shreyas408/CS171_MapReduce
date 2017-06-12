@@ -1,0 +1,5 @@
+#!/bin/bash
+java Map 1 5002 &
+java Map 2 5003 &
+java Reducer &
+java PRM 1 noprm &

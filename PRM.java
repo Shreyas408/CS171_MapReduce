@@ -24,7 +24,7 @@ public class PRM{
     		while(true){
 
 	    		try{
-					System.out.println("reading object...");
+					System.out.println("PRM reading object...");
 					Object o = inStream.readObject();
 					//System.out.println("object read?");
 					Request r = null;
@@ -48,10 +48,9 @@ public class PRM{
 		@Override
 		public void run(){
 			try{
-
+			    
         		Thread.sleep(5000);
        			while(true){
-
        				String request = "1";
        				if(cliInputStream.available() > 0)
 						 request = cliInputStream.readUTF();

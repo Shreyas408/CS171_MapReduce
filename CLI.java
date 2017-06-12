@@ -261,6 +261,7 @@ public class CLI{
 		CLI c = new CLI();
 		//c.setupClient();
 		try{
+		    c.setupClient();
 			c.setUpMapClient();
 			c.setUpReducerClient(); 
 			while(true){

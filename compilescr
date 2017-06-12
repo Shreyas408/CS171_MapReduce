@@ -1,0 +1,5 @@
+#!/bin/bash
+javac Map.java
+javac Reducer.java
+javac PRM.java
+javac CLI.java
