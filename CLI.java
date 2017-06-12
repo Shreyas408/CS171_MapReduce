@@ -29,6 +29,8 @@ public class CLI{
 
 	Socket prmClient;
     Socket map1Client;
+    Socket map2Client;
+    Socket reducerClient; 
     
 	//public CLI(int prmPort, String prmIP){
 	//}
@@ -37,7 +39,13 @@ public class CLI{
     DataOutputStream out;
 
     OutputStream map1Server;
-    DataOutputStream mapout;
+    DataOutputStream map1out;
+
+    OutputStream map2Server;
+    DataOutputStream map2out;
+
+	OutputStream reducerServer;
+    DataOutputStream reducerout;    
 
 	class ServerThread extends Thread{
 		private ServerSocket serverSocket;
@@ -76,7 +84,6 @@ public class CLI{
 	public void setupClient(){
 		String serverName = "127.0.0.1";
       	int port = 5001;
-	int mapport = 5002;
       	try {
 	    //For prm
 	    System.out.println("Connecting to " + serverName + " on port " + port);
@@ -91,10 +98,10 @@ public class CLI{
         	DataInputStream in = new DataInputStream(inFromServer);
 
 		//For map
-		map1Client = new Socket(serverName, mapport);
-		System.out.println("Just connected to " + map1Client.getRemoteSocketAddress());
-		map1Server = map1Client.getOutputStream();
-		mapout = new DataOutputStream(map1Server);
+		// map1Client = new Socket(serverName, mapport);
+		// System.out.println("Just connected to " + map1Client.getRemoteSocketAddress());
+		// map1Server = map1Client.getOutputStream();
+		// map1out = new DataOutputStream(map1Server);
 
          	//System.out.println("Server says " + in.readUTF());
       	}catch(IOException e) {
@@ -102,9 +109,49 @@ public class CLI{
       	}
 	}
 
-	public void closeClient(){
+	public void setUpMapClient(){
+		int port1 = 5002;
+		int port2 = 5003;
+		String serverName = "127.0.0.1";
+		try{
+			map1Client = new Socket(serverName, port1);
+			System.out.println("Just connected to " + map1Client.getRemoteSocketAddress());
+			map1Server = map1Client.getOutputStream();
+			map1out = new DataOutputStream(map1Server);
+
+			map2Client = new Socket(serverName, port2);
+			System.out.println("Just connected to " + map2Client.getRemoteSocketAddress());
+			map2Server = map2Client.getOutputStream();
+			map2out = new DataOutputStream(map2Server);
+
+		}catch(IOException e){
+			System.out.println("ErR"); 
+		}
+
+	}
+
+	public void setUpReducerClient(){
+		int port = 5004;
+		String serverName = "127.0.0.1";
+		try{
+			reducerClient = new Socket(serverName, port);
+			System.out.println("Just connected to " + reducerClient.getRemoteSocketAddress());
+			reducerServer = reducerClient.getOutputStream();
+			reducerout = new DataOutputStream(reducerServer);
+
+		}catch(IOException e){
+			System.out.println("ErR"); 
+		}
+
+	}
+
+	public void closeClients(){
 		try{
 			prmClient.close();
+    		map1Client.close();
+		    map2Client.close();
+		    reducerClient.close();
+
 		}catch(IOException e){
 			e.printStackTrace();
 		}
@@ -137,13 +184,17 @@ public class CLI{
 				    reader.skip(1);
 				    curChar = (char)reader.read();
 				}
+				offset+=1;
 				System.out.println("offset value: " + offset);
 				//map1 gets 0 offset-1
 				//map2 gets offset (chars-(offset-1))
+				map1out.writeUTF("map " + splitline[1] + " 0 " + (offset));
+				map2out.writeUTF("map " + splitline[1] + " " + offset + " " + (chars-(offset+1)));
 				
 				break;
 			case REDUCE:
 				System.out.println("Reduce");
+				reducerout.writeUTF(line);
 				break;
 			case REPLICATE:
 				System.out.println("Replicate");
@@ -208,13 +259,17 @@ public class CLI{
 
 	public static void main(String[] args){
 		CLI c = new CLI();
-		c.setupClient();
-		while(true){
-			try{
+		//c.setupClient();
+		try{
+			c.setUpMapClient();
+			c.setUpReducerClient(); 
+			while(true){
 				c.readInput();
-			}catch(Exception e){
-				System.out.println("e");
 			}
+		}catch(Exception e){
+			System.out.println("e");
 		}
+
+		c.closeClients();
 	}
 }
