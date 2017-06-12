@@ -338,7 +338,7 @@ public class PRM{
     	if(request.reqType.equals("update2")){
     		
     		if(!paxosRun){
-    			for(int i = log.size()-1; i < ((UpdateRequest)request).logobjects.size(); i++){
+    			for(int i = log.size(); i < ((UpdateRequest)request).logobjects.size(); i++){
 					log.add(((UpdateRequest)request).logobjects.get(i));
 				}
 				ballotNum = ((UpdateRequest)request).ballotNum;
@@ -368,7 +368,12 @@ public class PRM{
     	else if(request.reqType.equals("prepare")) {
     		//ack if ballot is bigger than mine
     		System.out.println(procID + " Reveived Prepare: " + request.ballotNum.toString());
-			System.out.println(procID + " values before prepare: " + ballotNum.toString() + " " + acceptNum.toString() + " " + currentLogObject);
+			System.out.print(procID + " values before prepare: " + ballotNum.toString() + " " + acceptNum.toString() + " ");
+			if(currentLogObject != null){
+				System.out.println(currentLogObject.fileName);
+			}else{
+				System.out.println("null");
+			}
 
 			ballotNum = ballotNum.compare(request.ballotNum);
 
@@ -382,12 +387,29 @@ public class PRM{
 				}
 			}
 
-			System.out.println(procID + " values after prepare: " + ballotNum + " " + acceptNum + " " + currentLogObject + "\n");
+			System.out.print(procID + " values after prepare: " + ballotNum + " " + acceptNum + " ");
+			if(currentLogObject != null){
+				System.out.println(currentLogObject.fileName + "\n");
+			}else{
+				System.out.println("null\n");
+			}
 
 		}
     	else if(request.reqType.equals("ack")) {
-    		System.out.println(procID + " Reveived ACK: " + request.ballotNum + request.acceptNum + request.logobject);
-			System.out.println(procID + " values before ACK: " + ballotNum + " " + acceptNum + " " + currentLogObject);
+    		System.out.print(procID + " Reveived ACK: " + request.ballotNum + " "  + request.acceptNum + " ");
+    		if(request.logobject != null){
+				System.out.println(request.logobject.fileName);
+			}else{
+				System.out.println("null");
+			}
+			System.out.print(procID + " values before ACK: " + ballotNum + " " + acceptNum + " " );
+			if(currentLogObject != null){
+				System.out.println(currentLogObject.fileName);
+			}else{
+				System.out.println("null");
+			}
+
+
     		incrementAck(request);
     		//System.out.println("My ballotNum: " + ballotNum.toString());
 			//System.out.println("Request ballotNum: " + request.ballotNum.toString());
@@ -414,13 +436,29 @@ public class PRM{
     			incrementAccept(true);
     			ackCounter = 0;
     		}
-			System.out.println(procID + " values after ACK: " + ballotNum + " " + acceptNum + " " + currentLogObject + "\n");
+			System.out.print(procID + " values after ACK: " + ballotNum + " " + acceptNum + " ");
+			if(currentLogObject != null){
+				System.out.println(currentLogObject.fileName + "\n");
+			}else{
+				System.out.println("null\n");
+			}
 
     	}
     	else {
 
-    		System.out.println(procID + " Reveived Accept: " + request.ballotNum + request.acceptNum + request.logobject);
-			System.out.println(procID + " values before Accept: " + ballotNum + " " + acceptNum + " " + currentLogObject);
+    		System.out.print(procID + " Reveived Accept: " + request.ballotNum + " " + request.acceptNum + " ");
+			if(request.logobject != null){
+				System.out.println(request.logobject.fileName);
+			}else{
+				System.out.println("null");
+			}
+			System.out.print(procID + " values before Accept: " + ballotNum + " " + acceptNum + " " );
+    		if(currentLogObject != null){
+				System.out.println(currentLogObject.fileName);
+			}else{
+				System.out.println("null");
+			}
+
     		// if(acceptNum.isLessThan(request.ballotNum)) {
     		// 	incrementAccept(false);
     		// }
@@ -459,8 +497,12 @@ public class PRM{
     		// 	//acceptCounter = 0;
     		// 	return;
     		// }
-			System.out.println(procID + " values after Accept: " + ballotNum + " " + acceptNum + " " + currentLogObject + "\n");
-
+			System.out.print(procID + " values after Accept: " + ballotNum + " " + acceptNum + " ");
+			if(request.logobject != null){
+				System.out.println(request.logobject.fileName + "\n");
+			}else{
+				System.out.println("null\n");
+			}
     	}
 		return;
     }
