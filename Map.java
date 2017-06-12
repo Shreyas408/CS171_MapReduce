@@ -17,11 +17,11 @@ public class Map{
 
 	public void listen() throws Exception{
 		while(true){
-			System.out.println("Reading data...");
+		    //			System.out.println("Reading data...");
 			//if(inStream.available() > 0){
 			String request = inStream.readUTF();
 			//}
-			System.out.println(request);
+			//	System.out.println(request);
 
 			String[] splitline = request.trim().split("\\s+");
 			File mFile = new File(splitline[1]);

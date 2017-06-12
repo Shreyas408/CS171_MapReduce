@@ -140,7 +140,7 @@ public class CLI{
 			reducerout = new DataOutputStream(reducerServer);
 
 		}catch(IOException e){
-			System.out.println("ErR"); 
+			System.out.println("Error"); 
 		}
 
 	}
@@ -163,7 +163,7 @@ public class CLI{
 	
 		switch (getCmd(line)){
 			case MAP:
-				System.out.println("Map");
+			    //System.out.println("Map");
 				String[] splitline = line.trim().split("\\s+");
 				File mapfile = new File(splitline[1]);
 				Scanner filein = new Scanner(mapfile);
@@ -185,7 +185,7 @@ public class CLI{
 				    curChar = (char)reader.read();
 				}
 				offset+=1;
-				System.out.println("offset value: " + offset);
+				//System.out.println("offset value: " + offset);
 				//map1 gets 0 offset-1
 				//map2 gets offset (chars-(offset-1))
 				map1out.writeUTF("map " + splitline[1] + " 0 " + (offset-1));
@@ -193,35 +193,35 @@ public class CLI{
 				
 				break;
 			case REDUCE:
-				System.out.println("Reduce");
+			    //	System.out.println("Reduce");
 				reducerout.writeUTF(line);
 				break;
 			case REPLICATE:
-				System.out.println("Replicate");
+			    //	System.out.println("Replicate");
 				out.writeUTF(line);
 				break;
 			case STOP:
-				System.out.println("Stop");
+			    //	System.out.println("Stop");
 				out.writeUTF(line);
 				break;
 			case RESUME:
-				System.out.println("Resume");
+			    //	System.out.println("Resume");
 				out.writeUTF(line);
 				break;
 			case TOTAL:
-				System.out.println("Total");
+			    //	System.out.println("Total");
 				out.writeUTF(line);
 				break;
 			case PRINT:
-				System.out.println("Print");
+			    //	System.out.println("Print");
 				out.writeUTF(line);
 				break;
 			case MERGE:
-				System.out.println("Merge");
+			    //	System.out.println("Merge");
 				out.writeUTF(line);
 				break;
 			default:
-				System.out.println("Invalid Input");
+			    	System.out.println("Invalid Input");
 				break;
 		}
 		

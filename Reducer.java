@@ -16,7 +16,7 @@ public class Reducer{
 	}
 	public void listen() throws Exception{
 		while(true){
-			System.out.println("Reading data...");
+		    //			System.out.println("Reading data...");
 			//if(inStream.available() > 0){
 			String request = inStream.readUTF();
 			//}

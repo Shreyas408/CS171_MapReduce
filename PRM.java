@@ -24,7 +24,7 @@ public class PRM{
     		while(true){
 
 	    		try{
-					System.out.println("PRM reading object...");
+			    //		System.out.println("PRM reading object...");
 					Object o = inStream.readObject();
 					//System.out.println("object read?");
 					Request r = null;
@@ -224,7 +224,7 @@ public class PRM{
 	}
 
 	public LogObject createLogObject(String filename) {
-		System.out.println("create logobject function");
+	    //System.out.println("create logobject function");
 		File file = new File(filename);
 		Scanner in = null;
 		try{
@@ -264,12 +264,15 @@ public class PRM{
 			Request newRequest = new Request("prepare", ballotNum, null, null);
 			ackCounter = 1;
 		//send paxos prepare
-			System.out.println(procID + " Sending Prepare: " + ballotNum.toString());
+			//System.out.println(procID + " Sending Prepare: " + ballotNum.toString());
+			if(prmOutSockets.length == 0) {
+			    incrementAccept(true);
+			}
 			for(int i = 0; i < prmOutSockets.length; i++){
 				try{
 					//ObjectOutputStream oos = new ObjectOutputStream(prmOutSockets[i].getOutputStream());
 					outStreams[i].writeObject(newRequest); 
-					System.out.println("Delivering Prepare Request");
+					//				System.out.println("Delivering Prepare Request");
 				}catch(IOException e){
 					e.printStackTrace();
 					break;
@@ -288,10 +291,11 @@ public class PRM{
 			}
 		}
 		else if(splitreq[0].equals("print")) {
+		    System.out.println("Printing Log: ");
 			for(int i = 0; i < log.size(); i++) {
 				System.out.println(log.get(i).fileName);
 			}
-			System.out.println("Done printing");
+			//	System.out.println("Done printing");
 		}
 		else if(splitreq[0].equals("merge")) {
 			//merge two hashmaps
@@ -366,13 +370,13 @@ public class PRM{
     	}
     	else if(request.reqType.equals("prepare")) {
     		//ack if ballot is bigger than mine
-    		System.out.println(procID + " Reveived Prepare: " + request.ballotNum.toString());
-			System.out.print(procID + " values before prepare: " + ballotNum.toString() + " " + acceptNum.toString() + " ");
-			if(currentLogObject != null){
-				System.out.println(currentLogObject.fileName);
-			}else{
-				System.out.println("null");
-			}
+    		//System.out.println(procID + " Reveived Prepare: " + request.ballotNum.toString());
+		//	System.out.print(procID + " values before prepare: " + ballotNum.toString() + " " + acceptNum.toString() + " ");
+		//	if(currentLogObject != null){
+		//		System.out.println(currentLogObject.fileName);
+		//	}else{
+		//		System.out.println("null");
+		//	}
 
 			ballotNum = ballotNum.compare(request.ballotNum);
 
@@ -386,27 +390,27 @@ public class PRM{
 				}
 			}
 
-			System.out.print(procID + " values after prepare: " + ballotNum + " " + acceptNum + " ");
-			if(currentLogObject != null){
-				System.out.println(currentLogObject.fileName + "\n");
-			}else{
-				System.out.println("null\n");
-			}
+			//	System.out.print(procID + " values after prepare: " + ballotNum + " " + acceptNum + " ");
+			//if(currentLogObject != null){
+			//	System.out.println(currentLogObject.fileName + "\n");
+			//}else{
+			//	System.out.println("null\n");
+			//}
 
 		}
     	else if(request.reqType.equals("ack")) {
-    		System.out.print(procID + " Reveived ACK: " + request.ballotNum + " "  + request.acceptNum + " ");
-    		if(request.logobject != null){
-				System.out.println(request.logobject.fileName);
-			}else{
-				System.out.println("null");
-			}
-			System.out.print(procID + " values before ACK: " + ballotNum + " " + acceptNum + " " );
-			if(currentLogObject != null){
-				System.out.println(currentLogObject.fileName);
-			}else{
-				System.out.println("null");
-			}
+	    //System.out.print(procID + " Reveived ACK: " + request.ballotNum + " "  + request.acceptNum + " ");
+	    //	if(request.logobject != null){
+	    //			System.out.println(request.logobject.fileName);
+	    //		}else{
+	    //			System.out.println("null");
+	    //		}
+	    //		System.out.print(procID + " values before ACK: " + ballotNum + " " + acceptNum + " " );
+	    //		if(currentLogObject != null){
+	    //			System.out.println(currentLogObject.fileName);
+	    //		}else{
+	    //			System.out.println("null");
+	    //		}
 
 
     		incrementAck(request);
@@ -414,7 +418,7 @@ public class PRM{
 			//System.out.println("Request ballotNum: " + request.ballotNum.toString());
     		//looking for full consensus
     		if(ackCounter > (prmOutSockets.length+1)/2) {
-    			System.out.println("We only want to see this once");
+		    //		System.out.println("We only want to see this once");
     			Tuple b = new Tuple(0,0);
     			LogObject myVal = currentLogObject;
     			for(int i = 0; i < requestList.size(); i++) {
@@ -435,28 +439,28 @@ public class PRM{
     			incrementAccept(true);
     			ackCounter = 0;
     		}
-			System.out.print(procID + " values after ACK: " + ballotNum + " " + acceptNum + " ");
-			if(currentLogObject != null){
-				System.out.println(currentLogObject.fileName + "\n");
-			}else{
-				System.out.println("null\n");
-			}
+		//	System.out.print(procID + " values after ACK: " + ballotNum + " " + acceptNum + " ");
+		//	if(currentLogObject != null){
+		//		System.out.println(currentLogObject.fileName + "\n");
+		//	}else{
+		///		System.out.println("null\n");
+		//	}
 
     	}
     	else {
 
-    		System.out.print(procID + " Reveived Accept: " + request.ballotNum + " " + request.acceptNum + " ");
-			if(request.logobject != null){
-				System.out.println(request.logobject.fileName);
-			}else{
-				System.out.println("null");
-			}
-			System.out.print(procID + " values before Accept: " + ballotNum + " " + acceptNum + " " );
-    		if(currentLogObject != null){
-				System.out.println(currentLogObject.fileName);
-			}else{
-				System.out.println("null");
-			}
+	    //System.out.print(procID + " Reveived Accept: " + request.ballotNum + " " + request.acceptNum + " ");
+	    //		if(request.logobject != null){
+	    ///			System.out.println(request.logobject.fileName);
+	    //		}else{
+	    //			System.out.println("null");
+	    //		}
+	    ///		System.out.print(procID + " values before Accept: " + ballotNum + " " + acceptNum + " " );
+	    //	if(currentLogObject != null){
+	    //			System.out.println(currentLogObject.fileName);
+	    //		}else{
+	    //			System.out.println("null");
+	    //		}
 
     		// if(acceptNum.isLessThan(request.ballotNum)) {
     		// 	incrementAccept(false);
@@ -486,22 +490,13 @@ public class PRM{
     		else if(acceptNum.isEqualTo(request.ballotNum)){
     			incrementAccept(false);
     		}
-
-
-    		// if(acceptCounter == (prmOutSockets.length+1)/2) {
-    		// 	//decide on this log object
-    		// 	System.out.println("Paxos complete adding into Log: " + acceptCounter + " w/ len " + prmOutSockets.length);
-    		// 	log.add(currentLogObject);
-    		// 	currentLogObject = null;
-    		// 	//acceptCounter = 0;
-    		// 	return;
-    		// }
-			System.out.print(procID + " values after Accept: " + ballotNum + " " + acceptNum + " ");
-			if(request.logobject != null){
-				System.out.println(request.logobject.fileName + "\n");
-			}else{
-				System.out.println("null\n");
-			}
+    		 
+		//		System.out.print(procID + " values after Accept: " + ballotNum + " " + acceptNum + " ");
+		//	if(request.logobject != null){
+		//		System.out.println(request.logobject.fileName + "\n");
+		//	}else{
+		//		System.out.println("null\n");
+		//	}
     	}
 		return;
     }
@@ -515,15 +510,15 @@ public class PRM{
     	
     	if(reset){
     		acceptCounter = 1;
-    		return;
+    		//return;
     	}
     	else{
     		acceptCounter++;
     	}
     	if(acceptCounter == (prmOutSockets.length+1)/2 + 1) {
 			//decide on this log object
-			System.out.println("Paxos complete adding into Log: " + acceptCounter + " w/ len " + prmOutSockets.length);
-			System.out.println("LogObject: " + currentLogObject.fileName + "\n");
+			//System.out.println("Paxos complete adding into Log: " + acceptCounter + " w/ len " + prmOutSockets.length);
+			//System.out.println("LogObject: " + currentLogObject.fileName + "\n");
 			log.add(currentLogObject);
 			currentLogObject = null;
 			acceptCounter = 0;
