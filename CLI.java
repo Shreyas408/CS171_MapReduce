@@ -28,12 +28,16 @@ public class CLI{
 	String prmIP;
 
 	Socket prmClient;
-
+    Socket map1Client;
+    
 	//public CLI(int prmPort, String prmIP){
 	//}
 	//PRM communication
 	OutputStream outToServer;
-	DataOutputStream out;
+    DataOutputStream out;
+
+    OutputStream map1Server;
+    DataOutputStream mapout;
 
 	class ServerThread extends Thread{
 		private ServerSocket serverSocket;
@@ -56,10 +60,6 @@ public class CLI{
             
             			System.out.println(in.readUTF());
             		}
-            		//DataOutputStream out = new DataOutputStream(server.getOutputStream());
-            		//out.writeUTF("Thank you for connecting to " + server.getLocalSocketAddress()
-               		   //+ "\nGoodbye!");
-            		//server.close();
 				}
 				catch (SocketTimeoutException s){
 					System.out.println("Socket timed out!");
@@ -76,8 +76,10 @@ public class CLI{
 	public void setupClient(){
 		String serverName = "127.0.0.1";
       	int port = 5001;
+	int mapport = 5002;
       	try {
-        	System.out.println("Connecting to " + serverName + " on port " + port);
+	    //For prm
+	    System.out.println("Connecting to " + serverName + " on port " + port);
         	prmClient = new Socket(serverName, port);
          
         	System.out.println("Just connected to " + prmClient.getRemoteSocketAddress());
@@ -87,7 +89,13 @@ public class CLI{
         	out.writeUTF("Hello from " + prmClient.getLocalSocketAddress());
         	InputStream inFromServer = prmClient.getInputStream();
         	DataInputStream in = new DataInputStream(inFromServer);
-         
+
+		//For map
+		map1Client = new Socket(serverName, mapport);
+		System.out.println("Just connected to " + map1Client.getRemoteSocketAddress());
+		map1Server = map1Client.getOutputStream();
+		mapout = new DataOutputStream(map1Server);
+
          	//System.out.println("Server says " + in.readUTF());
       	}catch(IOException e) {
          	e.printStackTrace();
@@ -109,6 +117,30 @@ public class CLI{
 		switch (getCmd(line)){
 			case MAP:
 				System.out.println("Map");
+				String[] splitline = line.trim().split("\\s+");
+				File mapfile = new File(splitline[1]);
+				Scanner filein = new Scanner(mapfile);
+				int chars = 0;
+				while(filein.hasNextLine()) {
+				    String fline = filein.nextLine();
+				    chars += fline.length();
+				}
+				//System.out.println("Number of chars: " + chars);
+				//read char and move offset until space
+				int offset = chars/2;
+				BufferedReader reader = new BufferedReader(new FileReader(mapfile));
+				reader.skip(offset);
+				char curChar = (char)reader.read();
+				while(curChar != ' ') { //keep moving until you hit a space
+				    //System.out.println(curChar);
+				    offset += 1;
+				    reader.skip(1);
+				    curChar = (char)reader.read();
+				}
+				System.out.println("offset value: " + offset);
+				//map1 gets 0 offset-1
+				//map2 gets offset (chars-(offset-1))
+				
 				break;
 			case REDUCE:
 				System.out.println("Reduce");
