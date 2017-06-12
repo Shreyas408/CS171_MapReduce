@@ -35,7 +35,7 @@ public class Map{
 			reader.skip(Integer.parseInt(splitline[2]));
 			while(chars <= Integer.parseInt(splitline[3])) { //size = splitline[3]
 				char curChar = (char)reader.read();
-				if(curChar != ' '){
+				if(curChar != ' ' && curChar != ','){
 					word += curChar;
 					//System.out.println(word);
 				}
@@ -69,7 +69,7 @@ public class Map{
 				word = "";
 			}
 			writeDictToFile(dictionary, splitline[1] + "_I_" + id);
-
+			System.out.println("Finished Mapping");
 
 		}
 	}

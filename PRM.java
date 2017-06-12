@@ -220,7 +220,7 @@ public class PRM{
 			t.start();
 		}
 
-		//printIps();
+		System.out.println("PRM Ready");	
 	}
 
 	public LogObject createLogObject(String filename) {
@@ -264,7 +264,7 @@ public class PRM{
 			Request newRequest = new Request("prepare", ballotNum, null, null);
 			ackCounter = 1;
 		//send paxos prepare
-			//System.out.println(procID + " Sending Prepare: " + ballotNum.toString());
+			System.out.println(procID + " Sending Prepare: " + ballotNum.toString());
 			if(prmOutSockets.length == 0) {
 			    incrementAccept(true);
 			}
@@ -370,7 +370,7 @@ public class PRM{
     	}
     	else if(request.reqType.equals("prepare")) {
     		//ack if ballot is bigger than mine
-    		//System.out.println(procID + " Reveived Prepare: " + request.ballotNum.toString());
+    		System.out.println(procID + " Received Prepare: " + request.ballotNum.toString());
 		//	System.out.print(procID + " values before prepare: " + ballotNum.toString() + " " + acceptNum.toString() + " ");
 		//	if(currentLogObject != null){
 		//		System.out.println(currentLogObject.fileName);
@@ -381,9 +381,10 @@ public class PRM{
 			ballotNum = ballotNum.compare(request.ballotNum);
 
 			//update request to send back
-			Request ackReq = new Request("ack", request.ballotNum, acceptNum, currentLogObject);
+			Request ackReq = new Request("ack", ballotNum, acceptNum, currentLogObject);
 			//System.out.println("My ballotNum: " + ballotNum.toString());
 			//System.out.println("Request ballotNum: " + request.ballotNum.toString());
+			System.out.println("senidng ack...");
 			for(int i = 0; i < prmOutSockets.length; i++) {
 				if(ip.equals(prmOutSockets[i].getInetAddress().toString())) {
 					outStreams[i].writeObject(ackReq);
@@ -399,7 +400,7 @@ public class PRM{
 
 		}
     	else if(request.reqType.equals("ack")) {
-	    //System.out.print(procID + " Reveived ACK: " + request.ballotNum + " "  + request.acceptNum + " ");
+	    	System.out.print(procID + " Reveived ACK: " + request.ballotNum + " "  + request.acceptNum + " ");
 	    //	if(request.logobject != null){
 	    //			System.out.println(request.logobject.fileName);
 	    //		}else{
@@ -431,8 +432,10 @@ public class PRM{
     			Request acceptReq = new Request("accept", ballotNum, null, myVal);
     			//if my ballotNum == req.ballotNum => accept on my val
     			//change my acceptnum to ballot number, don't change otherwise
-    			if(ballotNum.equals(request.ballotNum))
+    			if(ballotNum.equals(request.ballotNum)){
     				acceptNum = request.ballotNum; //PROBLEM HERE ERROR WHAT WENT WRONG 
+    				acceptReq = new Request("accept", ballotNum, null, myVal);
+    			}
     			for(int i = 0; i < prmOutSockets.length; i++) {
     				outStreams[i].writeObject(acceptReq);
     			}
@@ -481,6 +484,7 @@ public class PRM{
  				//System.out.println("Post accept acceptNum: " + acceptNum.toString());
      			//check to make sure we're only sending the first time
 				Request acceptReq = new Request("accept", request.ballotNum, null, request.logobject);
+				System.out.println("Sending Accepts: " + req)
 				for(int i = 0; i < prmOutSockets.length; i++) {
 					outStreams[i].writeObject(acceptReq);
 				}
@@ -521,7 +525,8 @@ public class PRM{
 			//System.out.println("LogObject: " + currentLogObject.fileName + "\n");
 			log.add(currentLogObject);
 			currentLogObject = null;
-			acceptCounter = 0;
+			acceptCounter = 
+			;
 			lastAcceptedBallot = acceptNum;
 			acceptNum = new Tuple(0,0);
 			ackCounter = 0; 
